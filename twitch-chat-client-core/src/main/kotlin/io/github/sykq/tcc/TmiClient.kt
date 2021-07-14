@@ -79,8 +79,12 @@ class TmiClient(configure: Builder.() -> Unit) {
          */
         var password: String? = null
         var channels: MutableList<String> = mutableListOf()
-        var onConnect: Connection.() -> Unit = {}
-        var onMessage: (String) -> Unit = {}
+        internal var onConnect: Connection.() -> Unit = {}
+        internal var onMessage: (String) -> Unit = {}
+
+        fun channels(channels: List<String>){
+            this.channels = channels.toMutableList()
+        }
 
         fun onConnect(doOnConnect: Connection.() -> Unit) {
             onConnect = doOnConnect
