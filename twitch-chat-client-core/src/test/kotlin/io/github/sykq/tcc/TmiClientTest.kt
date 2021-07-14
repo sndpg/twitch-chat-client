@@ -3,10 +3,15 @@ package io.github.sykq.tcc
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-internal class TwitchClientTest {
+internal class TmiClientTest {
 
     @Test
     fun test() {
-        assertThat(TwitchClient().test).isEqualTo("abc")
+        TmiClient{
+            channels + "sykq"
+            onConnect {
+
+            }
+        }
     }
 }
