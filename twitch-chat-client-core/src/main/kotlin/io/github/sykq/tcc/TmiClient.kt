@@ -1,5 +1,11 @@
 package io.github.sykq.tcc
 
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
+import org.springframework.web.reactive.socket.client.WebSocketClient
+import reactor.core.publisher.Mono
+import java.net.URI
+
+
 /**
  * Twitch Messaging Interface (TMI) Client.
  *
@@ -53,7 +59,34 @@ class TmiClient(configure: Builder.() -> Unit) {
     }
 
     fun connect() {
+//        val webClient = WebClient.builder()
+//            .clientConnector(ReactorClientHttpConnector())
+//            .baseUrl("wss://irc-ws.chat.twitch.tv:443")
+//            .build()
 
+//        return webClient.get()
+//            .headers {
+//                it[HttpHeaders.HOST] = "irc-ws.chat.twitch.tv"
+//                it[HttpHeaders.CONNECTION] = "Upgrade"
+//                it[HttpHeaders.UPGRADE] = "websocket"
+//
+//                it["Sec-WebSocket-Key"] = "FFcWKwytu/MoY1Q4P7TlvA=="
+//                it["Sec-WebSocket-Version"] = "13"
+//                it["Sec-WebSocket-Extensions"] = "permessage-deflate; client_max_window_bits"
+//            }
+//            .retrieve()
+//            .bodyToFlux(String::class.java)
+        val client: WebSocketClient = ReactorNettyWebSocketClient()
+
+        client.execute(URI.create("wss://irc-ws.chat.twitch.tv:443")) {
+            it.send(Mono.just(it.textMessage("PASS $password")))
+                .then(it.send(Mono.just(it.textMessage("NICK $username"))))
+                .then(it.send(Mono.just(it.textMessage("JOIN #sykq"))))
+                .thenMany(it.receive()
+                    .map { message -> message.payloadAsText }
+                    .log())
+                .then()
+        }.block()
     }
 
     fun connect(onConnect: (String) -> Unit, onMessage: (String) -> Unit) {
@@ -82,7 +115,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         internal var onConnect: Connection.() -> Unit = {}
         internal var onMessage: (String) -> Unit = {}
 
-        fun channels(channels: List<String>){
+        fun channels(channels: List<String>) {
             this.channels = channels.toMutableList()
         }
 

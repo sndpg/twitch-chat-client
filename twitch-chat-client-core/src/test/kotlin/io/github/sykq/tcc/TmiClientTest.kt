@@ -1,6 +1,8 @@
 package io.github.sykq.tcc
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import reactor.test.StepVerifier
 
 internal class TmiClientTest {
 
@@ -13,8 +15,6 @@ internal class TmiClientTest {
             }
             channels(listOf("abc", "def"))
         }
-
         tmiClient.connect()
-
     }
 }
