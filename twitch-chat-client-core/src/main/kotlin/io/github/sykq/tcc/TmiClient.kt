@@ -14,6 +14,7 @@ import java.net.URI
 class TmiClient(configure: Builder.() -> Unit) {
     private val username: String
     private val password: String
+    private val url: String
     private val channels: List<String>
 
     private val onConnect: Connection.() -> Unit
@@ -52,6 +53,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         username = resolveProperty(TMI_CLIENT_USERNAME_KEY, builder.username)
         password = resolveProperty(TMI_CLIENT_PASSWORD_KEY, builder.password)
 
+        url = builder.url
         channels = builder.channels
 
         onConnect = builder.onConnect
@@ -61,7 +63,7 @@ class TmiClient(configure: Builder.() -> Unit) {
     fun connect() {
         val client: WebSocketClient = ReactorNettyWebSocketClient()
 
-        client.execute(URI.create("wss://irc-ws.chat.twitch.tv:443")) {
+        client.execute(URI.create(url)) {
             it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
@@ -95,6 +97,7 @@ class TmiClient(configure: Builder.() -> Unit) {
          *  The oauth-token used for authentication and authorization of the bot.
          */
         var password: String? = null
+        var url: String = "wss://irc-ws.chat.twitch.tv:443"
         var channels: MutableList<String> = mutableListOf()
         internal var onConnect: Connection.() -> Unit = {}
         internal var onMessage: (String) -> Unit = {}
