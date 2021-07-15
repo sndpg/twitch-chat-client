@@ -2,9 +2,9 @@ package io.github.sykq.tcc
 
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
-import reactor.core.publisher.Mono
+import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toFlux
 import java.net.URI
-
 
 /**
  * Twitch Messaging Interface (TMI) Client.
@@ -59,29 +59,13 @@ class TmiClient(configure: Builder.() -> Unit) {
     }
 
     fun connect() {
-//        val webClient = WebClient.builder()
-//            .clientConnector(ReactorClientHttpConnector())
-//            .baseUrl("wss://irc-ws.chat.twitch.tv:443")
-//            .build()
-
-//        return webClient.get()
-//            .headers {
-//                it[HttpHeaders.HOST] = "irc-ws.chat.twitch.tv"
-//                it[HttpHeaders.CONNECTION] = "Upgrade"
-//                it[HttpHeaders.UPGRADE] = "websocket"
-//
-//                it["Sec-WebSocket-Key"] = "FFcWKwytu/MoY1Q4P7TlvA=="
-//                it["Sec-WebSocket-Version"] = "13"
-//                it["Sec-WebSocket-Extensions"] = "permessage-deflate; client_max_window_bits"
-//            }
-//            .retrieve()
-//            .bodyToFlux(String::class.java)
         val client: WebSocketClient = ReactorNettyWebSocketClient()
 
         client.execute(URI.create("wss://irc-ws.chat.twitch.tv:443")) {
-            it.send(Mono.just(it.textMessage("PASS $password")))
-                .then(it.send(Mono.just(it.textMessage("NICK $username"))))
-                .then(it.send(Mono.just(it.textMessage("JOIN #sykq"))))
+            it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
+                .thenMany(it.send(channels
+                    .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
+                    .toFlux()))
                 .thenMany(it.receive()
                     .map { message -> message.payloadAsText }
                     .log())
@@ -123,4 +107,8 @@ class TmiClient(configure: Builder.() -> Unit) {
             onConnect = doOnConnect
         }
     }
+}
+
+private fun String.prependIfMissing(prependChar: Char): String {
+    return if (this.startsWith(prependChar)) this else "$prependChar$this"
 }
