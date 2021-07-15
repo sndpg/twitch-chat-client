@@ -1,5 +1,7 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
+import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
 import reactor.core.publisher.Flux
@@ -9,42 +11,22 @@ import java.net.URI
 /**
  * Twitch Messaging Interface (TMI) Client.
  *
+ * If [username]/[password] are not explicitly specified via the given `configure` method  the [username] will be
+ * retrieved from the environment or jvm properties by reading the value of the key [TMI_CLIENT_USERNAME_KEY] and the
+ * password by reading the value of the key [TMI_CLIENT_PASSWORD_KEY].
+ *
  * @param configure configuration that will be applied at instance creation
  */
 class TmiClient(configure: Builder.() -> Unit) {
+
     private val username: String
     private val password: String
     private val url: String
     private val channels: List<String>
 
+    private val client: WebSocketClient = ReactorNettyWebSocketClient()
     private val onConnect: Connection.() -> Unit
     private val onMessage: (String) -> Unit
-
-    companion object {
-
-        private const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
-        private const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
-
-        private fun resolveProperty(key: String, providedValue: String?) = when {
-            providedValue?.isNotBlank() ?: false -> providedValue!!
-            System.getenv().containsKey(key) -> System.getenv(key)
-            System.getProperties().containsKey(key) -> System.getProperty(key)
-            else -> throw Exception("could not obtain value for key [$key] from environment or jvm properties")
-        }
-
-    }
-
-    /**
-     * Retrieves the [username] to use from the environment or jvm properties by reading the value of the key
-     * [TMI_CLIENT_USERNAME_KEY] and the password by reading the value of the key [TMI_CLIENT_PASSWORD_KEY].
-     *
-     * @param configure configuration that will be applied at instance creation
-     */
-//    constructor(configure: Builder.() -> Unit) : this(
-//        resolveProperty(TMI_CLIENT_USERNAME_KEY),
-//        resolveProperty(TMI_CLIENT_PASSWORD_KEY),
-//        configure
-//    )
 
     init {
         val builder = Builder()
@@ -61,7 +43,6 @@ class TmiClient(configure: Builder.() -> Unit) {
     }
 
     fun connect() {
-        val client: WebSocketClient = ReactorNettyWebSocketClient()
 
         client.execute(URI.create(url)) {
             it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
@@ -97,11 +78,25 @@ class TmiClient(configure: Builder.() -> Unit) {
          *  The oauth-token used for authentication and authorization of the bot.
          */
         var password: String? = null
+
+        /**
+         *  The url of the twitch chat server.
+         *
+         *  Defaults to `wss://irc-ws.chat.twitch.tv:443`.
+         */
         var url: String = "wss://irc-ws.chat.twitch.tv:443"
+
+        /**
+         * The channels to join after connecting.
+         */
         var channels: MutableList<String> = mutableListOf()
+
         internal var onConnect: Connection.() -> Unit = {}
         internal var onMessage: (String) -> Unit = {}
 
+        /**
+         * Provide the names of the [channels] to join after connecting.
+         */
         fun channels(channels: List<String>) {
             this.channels = channels.toMutableList()
         }
@@ -110,6 +105,21 @@ class TmiClient(configure: Builder.() -> Unit) {
             onConnect = doOnConnect
         }
     }
+
+    companion object {
+
+        private const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
+        private const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
+
+        private fun resolveProperty(key: String, providedValue: String?) = when {
+            providedValue?.isNotBlank() ?: false -> providedValue!!
+            System.getenv().containsKey(key) -> System.getenv(key)
+            System.getProperties().containsKey(key) -> System.getProperty(key)
+            else -> throw Exception("could not obtain value for key [$key] from environment or jvm properties")
+        }
+
+    }
+
 }
 
 private fun String.prependIfMissing(prependChar: Char): String {
