@@ -2,6 +2,7 @@ package io.github.sykq.tcc
 
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
+import io.github.sykq.tcc.internal.prependIfMissing
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
@@ -129,8 +130,4 @@ class TmiClient(configure: Builder.() -> Unit) {
 
     }
 
-}
-
-private fun String.prependIfMissing(prependChar: Char): String {
-    return if (this.startsWith(prependChar)) this else "$prependChar$this"
 }
