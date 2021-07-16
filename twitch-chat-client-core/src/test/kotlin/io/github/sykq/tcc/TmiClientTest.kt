@@ -11,10 +11,14 @@ internal class TmiClientTest {
 //            channels += "dumbdog"
             onConnect {
                 println("connected")
-                textMessage(joinedChannels[0], "connected10")
-                textMessage(joinedChannels[0], "connected11")
+            }
+            onMessage { message, session ->
+                println("MESSAGE=${message.message}")
+                if (message.message == "!hello") {
+                    session.textMessage(message.channel, "Hi $username!")
+                }
             }
         }
-        tmiClient.connect()
+        tmiClient.block()
     }
 }
