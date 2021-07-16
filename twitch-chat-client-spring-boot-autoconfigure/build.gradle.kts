@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":twitch-chat-client-core"))
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    api(project(":twitch-chat-client-core"))
+    api("org.springframework.boot:spring-boot-autoconfigure")
 }
