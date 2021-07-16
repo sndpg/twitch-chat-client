@@ -12,6 +12,7 @@ internal class TmiClientTest {
             onConnect {
                 println("connected")
                 textMessage(joinedChannels[0], "connected10")
+                textMessage(joinedChannels[0], "connected11")
             }
         }
         tmiClient.connect()
