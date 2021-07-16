@@ -8,9 +8,10 @@ internal class TmiClientTest {
     fun test() {
         val tmiClient = TmiClient {
             channels += "sykq"
-            channels += "dumbdog"
+//            channels += "dumbdog"
             onConnect {
                 println("connected")
+                textMessage(joinedChannels[0], "connected10")
             }
         }
         tmiClient.connect()

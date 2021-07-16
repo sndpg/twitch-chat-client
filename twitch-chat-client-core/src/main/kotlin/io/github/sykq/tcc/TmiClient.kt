@@ -2,9 +2,11 @@ package io.github.sykq.tcc
 
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
+import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import java.net.URI
 
@@ -25,7 +27,7 @@ class TmiClient(configure: Builder.() -> Unit) {
     private val channels: List<String>
 
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
-    private val onConnect: Connection.() -> Unit
+    private val onConnect: TmiSession.() -> Unit
     private val onMessage: (String) -> Unit
 
     init {
@@ -49,6 +51,7 @@ class TmiClient(configure: Builder.() -> Unit) {
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
+                .then(resolveOnConnect(it))
                 .thenMany(it.receive()
                     .map { message -> message.payloadAsText }
                     .log())
@@ -56,7 +59,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         }.block()
     }
 
-    fun connect(onConnect: (String) -> Unit, onMessage: (String) -> Unit) {
+    fun connect(onConnect: (TmiSession) -> Mono<Void>, onMessage: (String) -> Unit) {
 
     }
 
@@ -66,6 +69,12 @@ class TmiClient(configure: Builder.() -> Unit) {
 
     fun onConnected() {
 
+    }
+
+    private fun resolveOnConnect(webSocketSession: WebSocketSession): Mono<Void> {
+        val tmiSession = TmiSession(webSocketSession, channels)
+        onConnect(tmiSession)
+        return webSocketSession.send(tmiSession.actions.toFlux())
     }
 
     class Builder {
@@ -91,7 +100,7 @@ class TmiClient(configure: Builder.() -> Unit) {
          */
         var channels: MutableList<String> = mutableListOf()
 
-        internal var onConnect: Connection.() -> Unit = {}
+        internal var onConnect: TmiSession.() -> Unit = {}
         internal var onMessage: (String) -> Unit = {}
 
         /**
@@ -101,7 +110,7 @@ class TmiClient(configure: Builder.() -> Unit) {
             this.channels = channels.toMutableList()
         }
 
-        fun onConnect(doOnConnect: Connection.() -> Unit) {
+        fun onConnect(doOnConnect: TmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
     }
