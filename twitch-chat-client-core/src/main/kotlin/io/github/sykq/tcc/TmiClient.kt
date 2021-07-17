@@ -156,7 +156,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         private const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
 
         private fun resolveProperty(key: String, providedValue: String?) = when {
-            providedValue?.isNotBlank() ?: false -> providedValue!!
+            providedValue != null && providedValue.isNotBlank() -> providedValue
             System.getenv().containsKey(key) -> System.getenv(key)
             System.getProperties().containsKey(key) -> System.getProperty(key)
             else -> throw Exception("could not obtain value for key [$key] from environment or jvm properties")
