@@ -28,7 +28,7 @@ class TmiClient(configure: Builder.() -> Unit) {
     private val password: String
     private val url: String
 
-    private val channels: List<String>
+    private val channels: MutableList<String>
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
 
     private val onConnect: TmiSession.() -> Unit

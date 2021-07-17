@@ -10,8 +10,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * @param webSocketSession the [WebSocketSession] to wrap.
  * @param joinedChannels the currently joined channels.
  */
-// TODO: update joinedChannels somehow upon joining/leaving
-class TmiSession(internal val webSocketSession: WebSocketSession, val joinedChannels: List<String>) {
+class TmiSession(internal val webSocketSession: WebSocketSession, private val joinedChannels: MutableList<String>) {
     internal val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
@@ -27,6 +26,7 @@ class TmiSession(internal val webSocketSession: WebSocketSession, val joinedChan
     fun join(vararg channels: String) {
         actions.addAll(
             channels.map {
+                joinedChannels.add(it)
                 webSocketSession.textMessage("JOIN ${it.prependIfMissing('#')}")
             }.toList()
         )
@@ -38,6 +38,7 @@ class TmiSession(internal val webSocketSession: WebSocketSession, val joinedChan
     fun leave(vararg channels: String) {
         actions.addAll(
             channels.map {
+                joinedChannels.remove(it)
                 webSocketSession.textMessage("PART ${it.prependIfMissing('#')}")
             }.toList()
         )
