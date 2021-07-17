@@ -7,4 +7,5 @@ interface ConnectionParametersProvider {
     fun getConnectionParameters(botName: String): ConnectionParameters
 
     data class ConnectionParameters(val username: String, val password: String)
+
 }

@@ -6,23 +6,29 @@ import org.junit.jupiter.api.Test
 internal class TmiClientTest {
 
     @Test
-    @Disabled
+//    @Disabled
     fun test() {
         val tmiClient = TmiClient {
-//            channels += "sykq"
+            channels += "sykq"
 //            channels += "harrie"
 //            channels += "dumbdog"
             onConnect {
                 println("connected")
 //                textMessage(joinedChannels[0], "connected")
-//                clearChat("sykq")
-//                textMessage("sykq", "Hi test")
+                clearChat("sykq")
+                textMessage("sykq", "Hi test")
             }
-            onMessage { message, session ->
-                println("MESSAGE=${message.message}")
+            onMessage {
+                println("MESSAGE=${it.message}")
 //                if (message.message == "!hello") {
 //                    session.textMessage(message.channel, "Hi ${message.user}!")
 //                }
+                if (it.message  == "!emoteonly"){
+                    emoteOnly(it.channel)
+                }
+                if (it.message == "!emoteonlyoff"){
+                    emoteOnlyOff(it.channel)
+                }
             }
         }
         tmiClient.block()

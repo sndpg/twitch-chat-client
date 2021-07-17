@@ -31,7 +31,7 @@ class TmiClient(configure: Builder.() -> Unit) {
 
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
     private val onConnect: TmiSession.() -> Unit
-    private val onMessage: (TmiMessage, TmiSession) -> Unit
+    private val onMessage: TmiSession.(TmiMessage) -> Unit
 
     init {
         val builder = Builder()
@@ -50,7 +50,7 @@ class TmiClient(configure: Builder.() -> Unit) {
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
         onConnect: ((TmiSession) -> Unit)? = null,
-        onMessage: ((TmiMessage, TmiSession) -> Unit)? = null
+        onMessage: (TmiSession.(TmiMessage) -> Unit)? = null
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
             it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
@@ -74,7 +74,7 @@ class TmiClient(configure: Builder.() -> Unit) {
 
     fun block(
         onConnect: ((TmiSession) -> Unit)? = null,
-        onMessage: ((TmiMessage, TmiSession) -> Unit)? = null
+        onMessage: (TmiSession.(TmiMessage) -> Unit)? = null
     ) {
         connect(onConnect, onMessage).block()
     }
@@ -90,10 +90,10 @@ class TmiClient(configure: Builder.() -> Unit) {
     private fun resolveOnMessage(
         tmiMessage: TmiMessage,
         tmiSession: TmiSession,
-        onMessage: ((TmiMessage, TmiSession) -> Unit)?
+        onMessage: (TmiSession.(TmiMessage) -> Unit)?
     ): Mono<Void> {
         val resolvedOnMessage = onMessage ?: this.onMessage
-        resolvedOnMessage(tmiMessage, tmiSession)
+        resolvedOnMessage(tmiSession, tmiMessage)
         return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
     }
 
@@ -132,7 +132,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         var channels: MutableList<String> = mutableListOf()
 
         internal var onConnect: TmiSession.() -> Unit = {}
-        internal var onMessage: (TmiMessage, TmiSession) -> Unit = { _, _ -> }
+        internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
 
         /**
          * Provide the names of the [channels] to immediately join after connecting.
@@ -145,7 +145,7 @@ class TmiClient(configure: Builder.() -> Unit) {
             onConnect = doOnConnect
         }
 
-        fun onMessage(doOnMessage: (TmiMessage, TmiSession) -> Unit) {
+        fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
             onMessage = doOnMessage
         }
     }
