@@ -135,7 +135,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         internal var onMessage: (TmiMessage, TmiSession) -> Unit = { _, _ -> }
 
         /**
-         * Provide the names of the [channels] to join after connecting.
+         * Provide the names of the [channels] to immediately join after connecting.
          */
         fun channels(channels: List<String>) {
             this.channels = channels.toMutableList()
