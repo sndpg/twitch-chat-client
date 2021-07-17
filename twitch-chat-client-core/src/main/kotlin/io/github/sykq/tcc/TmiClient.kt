@@ -27,10 +27,22 @@ class TmiClient(configure: Builder.() -> Unit) {
     private val username: String
     private val password: String
     private val url: String
+
+    /**
+     * The channels to join upon connecting.
+     */
     private val channels: List<String>
 
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
+
+    /**
+     * Actions to execute upon connecting to the TMI.
+     */
     private val onConnect: TmiSession.() -> Unit
+
+    /**
+     * Actions to execute in response to an incoming message.
+     */
     private val onMessage: TmiSession.(TmiMessage) -> Unit
 
     init {
@@ -47,6 +59,15 @@ class TmiClient(configure: Builder.() -> Unit) {
         onMessage = builder.onMessage
     }
 
+    /**
+     * Connect to the Twitch Messaging Interface (TMI).
+     *
+     * If the optional [onConnect] or [onMessage] parameters are provided, then the operations specified within these
+     * functions will be executed.
+     *
+     * Otherwise [TmiClient.onConnect] and [TmiClient.onMessage] (as supplied on instance creation through the
+     * according [Builder]) will be used to execute actions upon connecting and receiving messages respectively.
+     */
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
         onConnect: ((TmiSession) -> Unit)? = null,
@@ -108,6 +129,11 @@ class TmiClient(configure: Builder.() -> Unit) {
         }
     }
 
+    /**
+     * Builder for a [TmiClient].
+     *
+     * An instance of this object can be provided as an constructor argument for a TmiClient to be created.
+     */
     class Builder {
         /**
          * The username of the bot/user.
@@ -141,10 +167,16 @@ class TmiClient(configure: Builder.() -> Unit) {
             this.channels = channels.toMutableList()
         }
 
+        /**
+         * @see TmiClient.onConnect
+         */
         fun onConnect(doOnConnect: TmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
 
+        /**
+         *@see TmiClient.onMessage
+         */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
             onMessage = doOnMessage
         }
