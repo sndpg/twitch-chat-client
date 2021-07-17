@@ -11,11 +11,16 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
+val mockitoKotlinVersion = "3.2.0"
+
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.2"))
     implementation(kotlin("stdlib"))
+
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 
 }
 
