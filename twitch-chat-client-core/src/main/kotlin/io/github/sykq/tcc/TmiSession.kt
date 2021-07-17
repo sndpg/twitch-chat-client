@@ -6,7 +6,11 @@ import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * Wrapper over [WebSocketSession] with methods specific to Twitch chat / the Twitch Messaging Interface (TMI).
+ *
+ * @param webSocketSession the [WebSocketSession] to wrap.
+ * @param joinedChannels the currently joined channels.
  */
+// TODO: update joinedChannels somehow upon joining/leaving
 class TmiSession(internal val webSocketSession: WebSocketSession, val joinedChannels: List<String>) {
     internal val actions: MutableList<WebSocketMessage> = mutableListOf()
 
