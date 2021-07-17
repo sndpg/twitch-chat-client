@@ -28,21 +28,10 @@ class TmiClient(configure: Builder.() -> Unit) {
     private val password: String
     private val url: String
 
-    /**
-     * The channels to join upon connecting.
-     */
     private val channels: List<String>
-
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
 
-    /**
-     * Actions to execute upon connecting to the TMI.
-     */
     private val onConnect: TmiSession.() -> Unit
-
-    /**
-     * Actions to execute in response to an incoming message.
-     */
     private val onMessage: TmiSession.(TmiMessage) -> Unit
 
     init {
@@ -65,8 +54,9 @@ class TmiClient(configure: Builder.() -> Unit) {
      * If the optional [onConnect] or [onMessage] parameters are provided, then the operations specified within these
      * functions will be executed.
      *
-     * Otherwise [TmiClient.onConnect] and [TmiClient.onMessage] (as supplied on instance creation through the
-     * according [Builder]) will be used to execute actions upon connecting and receiving messages respectively.
+     * Otherwise [TmiClient.Builder.onConnect] and [TmiClient.Builder.onMessage] (as supplied on instance creation
+     * through the according [Builder]) will be used to execute actions upon connecting and receiving messages
+     * respectively.
      */
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
@@ -135,6 +125,7 @@ class TmiClient(configure: Builder.() -> Unit) {
      * An instance of this object can be provided as an constructor argument for a TmiClient to be created.
      */
     class Builder {
+
         /**
          * The username of the bot/user.
          */
@@ -153,7 +144,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         var url: String = "wss://irc-ws.chat.twitch.tv:443"
 
         /**
-         * The channels to join after connecting.
+         * The channels to join upon connecting to the TMI. May be empty.
          */
         var channels: MutableList<String> = mutableListOf()
 
@@ -162,24 +153,26 @@ class TmiClient(configure: Builder.() -> Unit) {
 
         /**
          * Provide the names of the [channels] to immediately join after connecting.
+         * @see TmiClient.channels
          */
         fun channels(channels: List<String>) {
             this.channels = channels.toMutableList()
         }
 
         /**
-         * @see TmiClient.onConnect
+         * Provide the actions to execute upon connecting to the TMI.
          */
         fun onConnect(doOnConnect: TmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
 
         /**
-         *@see TmiClient.onMessage
+         * Provide the actions to execute in response to an incoming message.
          */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
             onMessage = doOnMessage
         }
+
     }
 
     companion object {
