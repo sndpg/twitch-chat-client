@@ -8,11 +8,13 @@ internal class TmiClientTest {
     fun test() {
         val tmiClient = TmiClient {
 //            channels += "sykq"
-            channels += "flackblag"
+//            channels += "harrie"
 //            channels += "dumbdog"
             onConnect {
                 println("connected")
 //                textMessage(joinedChannels[0], "connected")
+//                clearChat("sykq")
+//                textMessage("sykq", "Hi test")
             }
             onMessage { message, session ->
                 println("MESSAGE=${message.message}")

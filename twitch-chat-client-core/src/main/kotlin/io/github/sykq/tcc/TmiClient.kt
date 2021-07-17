@@ -30,8 +30,8 @@ class TmiClient(configure: Builder.() -> Unit) {
     private val channels: List<String>
 
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
-    private val onConnect: TmiSessionSnapshot.() -> Unit
-    private val onMessage: (TmiMessage, TmiSessionSnapshot) -> Unit
+    private val onConnect: TmiSession.() -> Unit
+    private val onMessage: (TmiMessage, TmiSession) -> Unit
 
     init {
         val builder = Builder()
@@ -49,15 +49,15 @@ class TmiClient(configure: Builder.() -> Unit) {
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
-        onConnect: ((TmiSessionSnapshot) -> Unit)? = null,
-        onMessage: ((TmiMessage, TmiSessionSnapshot) -> Unit)? = null
+        onConnect: ((TmiSession) -> Unit)? = null,
+        onMessage: ((TmiMessage, TmiSession) -> Unit)? = null
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
             it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
-                .then(resolveOnConnect(TmiSessionSnapshot(it, channels), onConnect))
+                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
                 .thenMany(it.receive()
                     .map { message -> message.payloadAsText }
                     .log("", Level.FINE)
@@ -65,7 +65,7 @@ class TmiClient(configure: Builder.() -> Unit) {
                     .filter(TmiMessage::canBeCreatedFromPayloadAsText)
                     .map(TmiMessage::fromPayloadAsText)
                     .flatMap { tmiMessage ->
-                        resolveOnMessage(tmiMessage, TmiSessionSnapshot(it, channels), onMessage)
+                        resolveOnMessage(tmiMessage, TmiSession(it, channels), onMessage)
                     }
                     .log("", Level.FINE))
                 .then()
@@ -73,31 +73,32 @@ class TmiClient(configure: Builder.() -> Unit) {
     }
 
     fun block(
-        onConnect: ((TmiSessionSnapshot) -> Unit)? = null,
-        onMessage: ((TmiMessage, TmiSessionSnapshot) -> Unit)? = null
+        onConnect: ((TmiSession) -> Unit)? = null,
+        onMessage: ((TmiMessage, TmiSession) -> Unit)? = null
     ) {
         connect(onConnect, onMessage).block()
     }
 
     private fun resolveOnConnect(
-        tmiSessionSnapshot: TmiSessionSnapshot,
-        onConnect: ((TmiSessionSnapshot) -> Unit)?
+        tmiSession: TmiSession,
+        onConnect: ((TmiSession) -> Unit)?
     ): Mono<Void> {
-        if (onConnect == null) this.onConnect(tmiSessionSnapshot) else onConnect(tmiSessionSnapshot)
-        return tmiSessionSnapshot.webSocketSession.send(tmiSessionSnapshot.actions.toFlux())
+        if (onConnect == null) this.onConnect(tmiSession) else onConnect(tmiSession)
+        return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
     }
 
     private fun resolveOnMessage(
         tmiMessage: TmiMessage,
-        tmiSessionSnapshot: TmiSessionSnapshot,
-        onMessage: ((TmiMessage, TmiSessionSnapshot) -> Unit)?
+        tmiSession: TmiSession,
+        onMessage: ((TmiMessage, TmiSession) -> Unit)?
     ): Mono<Void> {
         val resolvedOnMessage = onMessage ?: this.onMessage
-        resolvedOnMessage(tmiMessage, tmiSessionSnapshot)
-        return tmiSessionSnapshot.webSocketSession.send(tmiSessionSnapshot.actions.toFlux())
+        resolvedOnMessage(tmiMessage, tmiSession)
+        return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
     }
 
     private fun pong(webSocketSession: WebSocketSession, message: String): Mono<String> {
+        // TODO: WebSocketSession provides pongMessage capabilities, soo ... maybe use it
         return if (message.startsWith("PING")) {
             webSocketSession.send(Mono.just(webSocketSession.textMessage(message.replace("PING", "PONG"))))
                 .log("", Level.FINE)
@@ -130,8 +131,8 @@ class TmiClient(configure: Builder.() -> Unit) {
          */
         var channels: MutableList<String> = mutableListOf()
 
-        internal var onConnect: TmiSessionSnapshot.() -> Unit = {}
-        internal var onMessage: (TmiMessage, TmiSessionSnapshot) -> Unit = { _, _ -> }
+        internal var onConnect: TmiSession.() -> Unit = {}
+        internal var onMessage: (TmiMessage, TmiSession) -> Unit = { _, _ -> }
 
         /**
          * Provide the names of the [channels] to join after connecting.
@@ -140,11 +141,11 @@ class TmiClient(configure: Builder.() -> Unit) {
             this.channels = channels.toMutableList()
         }
 
-        fun onConnect(doOnConnect: TmiSessionSnapshot.() -> Unit) {
+        fun onConnect(doOnConnect: TmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
 
-        fun onMessage(doOnMessage: (TmiMessage, TmiSessionSnapshot) -> Unit) {
+        fun onMessage(doOnMessage: (TmiMessage, TmiSession) -> Unit) {
             onMessage = doOnMessage
         }
     }
