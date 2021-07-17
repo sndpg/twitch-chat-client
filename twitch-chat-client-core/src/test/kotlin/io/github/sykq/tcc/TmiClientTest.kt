@@ -1,10 +1,12 @@
 package io.github.sykq.tcc
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 internal class TmiClientTest {
 
     @Test
+    @Disabled
     fun test() {
         val tmiClient = TmiClient {
 //            channels += "sykq"

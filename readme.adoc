@@ -1,0 +1,5 @@
+[IMPORTANT]
+====
+Builds with JDK 16+ won't succeed since kapt uses some internal API which is no longer accessible in those builds. +
+JDK 11 works.
+====
