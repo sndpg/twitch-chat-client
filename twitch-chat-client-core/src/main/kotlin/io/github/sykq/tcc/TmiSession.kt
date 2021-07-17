@@ -7,7 +7,6 @@ import org.springframework.web.reactive.socket.WebSocketSession
 /**
  * Wrapper over [WebSocketSession] with methods specific to Twitch chat / the Twitch Messaging Interface (TMI).
  */
-// TODO: rename to TmiOnConnectSessionSnapshot? (because that's what it is right now)
 class TmiSession(internal val webSocketSession: WebSocketSession, val joinedChannels: List<String>) {
     internal val actions: MutableList<WebSocketMessage> = mutableListOf()
 
