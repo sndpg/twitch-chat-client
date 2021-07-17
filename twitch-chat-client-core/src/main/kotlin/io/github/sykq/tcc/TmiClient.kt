@@ -3,11 +3,13 @@ package io.github.sykq.tcc
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
 import io.github.sykq.tcc.internal.prependIfMissing
+import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 import java.net.URI
 import java.util.logging.Level
 
@@ -45,6 +47,7 @@ class TmiClient(configure: Builder.() -> Unit) {
         onMessage = builder.onMessage
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
         onConnect: ((TmiSessionSnapshot) -> Unit)? = null,
         onMessage: ((TmiMessage, TmiSessionSnapshot) -> Unit)? = null
@@ -58,6 +61,7 @@ class TmiClient(configure: Builder.() -> Unit) {
                 .thenMany(it.receive()
                     .map { message -> message.payloadAsText }
                     .log("", Level.FINE)
+                    .flatMap { message -> pong(it, message) }
                     .filter(TmiMessage::canBeCreatedFromPayloadAsText)
                     .map(TmiMessage::fromPayloadAsText)
                     .flatMap { tmiMessage ->
@@ -75,7 +79,10 @@ class TmiClient(configure: Builder.() -> Unit) {
         connect(onConnect, onMessage).block()
     }
 
-    private fun resolveOnConnect(tmiSessionSnapshot: TmiSessionSnapshot, onConnect: ((TmiSessionSnapshot) -> Unit)?): Mono<Void> {
+    private fun resolveOnConnect(
+        tmiSessionSnapshot: TmiSessionSnapshot,
+        onConnect: ((TmiSessionSnapshot) -> Unit)?
+    ): Mono<Void> {
         if (onConnect == null) this.onConnect(tmiSessionSnapshot) else onConnect(tmiSessionSnapshot)
         return tmiSessionSnapshot.webSocketSession.send(tmiSessionSnapshot.actions.toFlux())
     }
@@ -88,6 +95,16 @@ class TmiClient(configure: Builder.() -> Unit) {
         val resolvedOnMessage = onMessage ?: this.onMessage
         resolvedOnMessage(tmiMessage, tmiSessionSnapshot)
         return tmiSessionSnapshot.webSocketSession.send(tmiSessionSnapshot.actions.toFlux())
+    }
+
+    private fun pong(webSocketSession: WebSocketSession, message: String): Mono<String> {
+        return if (message.startsWith("PING")) {
+            webSocketSession.send(Mono.just(webSocketSession.textMessage(message.replace("PING", "PONG"))))
+                .log("", Level.FINE)
+                .then(message.toMono())
+        } else {
+            message.toMono()
+        }
     }
 
     class Builder {
