@@ -1,8 +1,8 @@
-package io.github.sykq.tcc.bot
+package io.github.sykq.tcc.bot.action
 
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
-import io.github.sykq.tcc.bot.OnCommandAction.Options
+import io.github.sykq.tcc.bot.action.OnCommandAction.Options
 
 /**
  * Action in response to an incoming message, which will only be executed if the message is equal to the
@@ -22,13 +22,25 @@ import io.github.sykq.tcc.bot.OnCommandAction.Options
 class OnCommandAction(
     private val command: String,
     private val options: Options = Options(),
-    private val action: TmiSession.(TmiMessage) -> Unit
+    private val action: TmiSession.(TmiMessage, Command) -> Unit
 ) : (TmiSession, TmiMessage) -> Unit {
 
     override fun invoke(session: TmiSession, message: TmiMessage) {
-        if ((options.caseInsensitiveCommand && command.lowercase() == message.message) || command == message.message) {
-            action(session, message)
+        val messageStart = message.message.substringBefore(' ')
+
+        if (!options.allowArguments && message.message.trimEnd() != messageStart) {
+            return
         }
+
+        if ((options.caseInsensitiveCommand && command == messageStart.lowercase()) || command == messageStart) {
+            val parsedCommand = parseCommand(messageStart, message)
+            action(session, message, parsedCommand)
+        }
+    }
+
+    private fun parseCommand(command: String, message: TmiMessage): Command {
+        val arguments = message.message.removePrefix(command).trim().split(' ')
+        return Command(command, arguments)
     }
 
     /**
@@ -36,6 +48,10 @@ class OnCommandAction(
      *
      * @property caseInsensitiveCommand set to `true` if the incoming message and the set command should be treated as
      * equal even if the cases of the two values don't match.
+     * @property allowArguments if set to `false` a message must only contain the command itself and must not contain
+     * any additional arguments. If anything else (besides the command) is part of the incoming message, no action will
+     * be performed. Defaults to `true`.
      */
-    data class Options(val caseInsensitiveCommand: Boolean = true)
+    data class Options(val caseInsensitiveCommand: Boolean = true, val allowArguments: Boolean = true)
+
 }
