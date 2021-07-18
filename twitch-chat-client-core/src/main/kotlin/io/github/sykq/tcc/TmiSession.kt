@@ -10,7 +10,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * @param webSocketSession the [WebSocketSession] to wrap.
  * @param joinedChannels the currently joined channels.
  */
-class TmiSession(internal val webSocketSession: WebSocketSession, private val joinedChannels: MutableList<String>) {
+class TmiSession(internal val webSocketSession: WebSocketSession, internal val joinedChannels: MutableList<String>) {
     internal val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
@@ -87,6 +87,51 @@ class TmiSession(internal val webSocketSession: WebSocketSession, private val jo
      */
     fun followersOnlyOff(channel: String) {
         textMessage(channel, "/followersoff")
+    }
+
+    /**
+     * Sends the command `/slow` to the given [channel].
+     *
+     * This will active slow mode if the initiating user owns the required privileges to do so.
+     */
+    fun slow(channel: String) {
+        textMessage(channel, "/slow")
+    }
+
+    /**
+     * Sends the command `/slowoff` to the given [channel].
+     *
+     * This will deactivate slow mode if the initiating user owns the required privileges to do so.
+     */
+    fun slowOff(channel: String) {
+        textMessage(channel, "/slowoff")
+    }
+
+    /**
+     * Sends the command `/subscribers` to the given [channel].
+     *
+     * This will activate subscriber only mode if the initiating user owns the required privileges to do so.
+     */
+    fun subscribers(channel: String) {
+        textMessage(channel, "/subscribers")
+    }
+
+    /**
+     * Sends the command `/subscribersoff` to the given [channel].
+     *
+     * This will deactivate subscriber only mode if the initiating user owns the required privileges to do so.
+     */
+    fun subscribersOff(channel: String) {
+        textMessage(channel, "/subscribersoff")
+    }
+
+    /**
+     * Sends the command `/marker [description]` to the given [channel].
+     *
+     * Add a stream marker at the current timestamp with a specified description.
+     */
+    fun marker(channel: String, description: String) {
+        textMessage(channel, "/marker $description")
     }
 
 }
