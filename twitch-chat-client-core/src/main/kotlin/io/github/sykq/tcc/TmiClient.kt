@@ -16,39 +16,33 @@ import java.net.URI
 import java.util.logging.Level
 
 /**
+ * Allows to create a [TmiClient] by applying the configuration supplied through the [configure] method.
+ */
+fun tmiClient(configure: TmiClient.Configurer.() -> Unit): TmiClient {
+    val configurer = TmiClient.Configurer()
+    configure(configurer)
+    return TmiClient(configurer)
+}
+
+/**
  * Twitch Messaging Interface (TMI) Client.
  *
- * If [username]/[password] are not explicitly specified via the given `configure` method  the [username] will be
+ * If [username]/[password] are not explicitly specified via the given `configurer` the [username] will be
  * retrieved from the environment or jvm properties by reading the value of the key [TMI_CLIENT_USERNAME_KEY] and the
  * password by reading the value of the key [TMI_CLIENT_PASSWORD_KEY].
  *
- * @param configure configuration that will be applied at instance creation
+ * @param configurer configuration that will be applied at instance creation
  */
-class TmiClient(configure: Builder.() -> Unit) {
+class TmiClient internal constructor(configurer: Configurer) {
+    private val username: String = resolveProperty(TMI_CLIENT_USERNAME_KEY, configurer.username)
+    private val password: String = resolveProperty(TMI_CLIENT_PASSWORD_KEY, configurer.password)
+    private val url: String = configurer.url
 
-    private val username: String
-    private val password: String
-    private val url: String
-
-    private val channels: MutableList<String>
+    private val channels: MutableList<String> = configurer.channels
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
 
-    private val onConnect: TmiSession.() -> Unit
-    private val onMessage: TmiSession.(TmiMessage) -> Unit
-
-    init {
-        val builder = Builder()
-        configure(builder)
-
-        username = resolveProperty(TMI_CLIENT_USERNAME_KEY, builder.username)
-        password = resolveProperty(TMI_CLIENT_PASSWORD_KEY, builder.password)
-
-        url = builder.url
-        channels = builder.channels
-
-        onConnect = builder.onConnect
-        onMessage = builder.onMessage
-    }
+    private val onConnect: TmiSession.() -> Unit = configurer.onConnect
+    private val onMessage: TmiSession.(TmiMessage) -> Unit = configurer.onMessage
 
     /**
      * Connect to the Twitch Messaging Interface (TMI).
@@ -56,8 +50,8 @@ class TmiClient(configure: Builder.() -> Unit) {
      * If the optional [onConnect] or [onMessage] parameters are provided, then the operations specified within these
      * functions will be executed.
      *
-     * Otherwise [TmiClient.Builder.onConnect] and [TmiClient.Builder.onMessage] (as supplied on instance creation
-     * through the according [Builder]) will be used to execute actions upon connecting and receiving messages
+     * Otherwise [TmiClient.Configurer.onConnect] and [TmiClient.Configurer.onMessage] (as supplied on instance creation
+     * through the according [Configurer]) will be used to execute actions upon connecting and receiving messages
      * respectively.
      *
      * @param onConnect the actions to execute upon connecting to the TMI.
@@ -164,11 +158,11 @@ class TmiClient(configure: Builder.() -> Unit) {
     }
 
     /**
-     * Builder for a [TmiClient].
+     * Configurer for a [TmiClient].
      *
      * An instance of this object can be provided as an constructor argument for a TmiClient to be created.
      */
-    class Builder {
+    class Configurer {
 
         /**
          * The username of the bot/user.

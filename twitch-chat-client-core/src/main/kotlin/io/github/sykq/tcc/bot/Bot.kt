@@ -4,24 +4,42 @@ import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
 
-interface Bot<T> {
+/**
+ * The contract for a Class which will connect to the TMI (Twitch Messaging Interface) and perform certain actions
+ * depending on incoming messages.
+ */
+interface Bot {
 
-    val name: String
-    val channelsToJoin: List<String>
-    val initialize: T.() -> Unit
-    val onConnectActions: List<TmiSession.() -> Unit>
-    val onMessageActions: List<TmiSession.(TmiMessage) -> Unit>
-    val beforeShutdown: T.() -> Unit
-
+    /**
+     * The actions to execute when this Bot is first created.
+     *
+     * May change internal state.
+     */
     fun initialize() {}
 
+    /**
+     * The actions to execute after first connecting with the given [session].
+     *
+     * @param session the [TmiSession] used by this bot.
+     */
     fun onConnect(session: TmiSession)
 
+    /**
+     * The actions to execute upon each incoming [message] (as arriving within the [session]).
+     *
+     * @param session the [TmiSession] used by this bot.
+     * @param message the received message
+     */
     fun onMessage(session: TmiSession, message: TmiMessage)
 
+    /**
+     * The actions to execute before a Bot is "killed".
+     *
+     * May change internal state.
+     */
     fun beforeShutdown() {}
 
-    class Builder<T> {
+    class Configurer<T : Bot> {
 
         /**
          * An optional name for your bot which can be used to refer to within an application.
@@ -43,7 +61,23 @@ interface Bot<T> {
          */
         var channels: MutableList<String> = mutableListOf()
 
-        internal var initialize : T.() -> Unit = {}
+        var tmiClient: TmiClient? = null
+            get() {
+                if (field == null) {
+                    val tmiClientConfigurer = TmiClient.Configurer()
+                    tmiClientConfigurer.username = username
+                    tmiClientConfigurer.password = password
+                    tmiClientConfigurer.channels = channels
+
+                    tmiClientConfigurer.onConnect = onConnect
+                    tmiClientConfigurer.onMessage = onMessage
+
+                    field = TmiClient(tmiClientConfigurer)
+                }
+                return field
+            }
+
+        internal var initialize: T.() -> Unit = {}
         internal var onConnect: TmiSession.() -> Unit = {}
         internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
         internal var beforeShutdown: T.() -> Unit = {}
@@ -56,7 +90,12 @@ interface Bot<T> {
             this.channels = channels.toMutableList()
         }
 
-        fun initialize(doOnInit:  T.() -> Unit) {
+        /**
+         * Provide the actions to execute when this Bot is first created.
+         *
+         * May change internal state.
+         */
+        fun initialize(doOnInit: T.() -> Unit) {
             initialize = doOnInit
         }
 
@@ -74,7 +113,12 @@ interface Bot<T> {
             onMessage = doOnMessage
         }
 
-        fun beforeShutdown(doBeforeShutdown:  T.() -> Unit) {
+        /**
+         * Provide the actions to execute before a Bot is "killed".
+         *
+         * May change internal state.
+         */
+        fun beforeShutdown(doBeforeShutdown: T.() -> Unit) {
             beforeShutdown = doBeforeShutdown
         }
 

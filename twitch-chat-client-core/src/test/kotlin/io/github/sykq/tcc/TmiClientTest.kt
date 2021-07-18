@@ -9,7 +9,7 @@ internal class TmiClientTest {
     @Test
 //    @Disabled
     fun test() {
-        val tmiClient = TmiClient {
+        val tmiClient = tmiClient {
             channels += "sykq"
 //            channels += "codemiko"
 //            channels += "sunglitters"
@@ -40,7 +40,7 @@ internal class TmiClientTest {
     @Test
 //    @Disabled
     fun testWithPublisher() {
-        val tmiClient = TmiClient {
+        val tmiClient = tmiClient {
             channels += "sykq"
         }
 
