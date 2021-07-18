@@ -63,4 +63,67 @@ internal class OnCheerActionTest {
         verify(session, times(2)).textMessage(anyOrNull(), anyOrNull())
     }
 
+    @Test
+    fun testPerformActionWithGreaterThanCondition() {
+        val onCheerAction = OnCheerAction(CheerAmountCondition.greaterThan(500)) { _, cheerAmount ->
+            textMessage("test", "someone has cheered $cheerAmount bits")
+        }
+
+        val session = mock(TmiSession::class.java)!!
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer1001"))
+
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1000 bits"))
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1001 bits"))
+        verify(session, times(2)).textMessage(anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    fun testPerformActionWithGreaterThanOrEqualToCondition() {
+        val onCheerAction = OnCheerAction(CheerAmountCondition.greaterThanOrEqual(500)) { _, cheerAmount ->
+            textMessage("test", "someone has cheered $cheerAmount bits")
+        }
+
+        val session = mock(TmiSession::class.java)!!
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 500 bits"))
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1000 bits"))
+        verify(session, times(2)).textMessage(anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    fun testPerformActionWithLessThanCondition() {
+        val onCheerAction = OnCheerAction(CheerAmountCondition.lessThan(500)) { _, cheerAmount ->
+            textMessage("test", "someone has cheered $cheerAmount bits")
+        }
+
+        val session = mock(TmiSession::class.java)!!
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 499 bits"))
+        verify(session, times(1)).textMessage(anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    fun testPerformActionWithLessThanOrEqualToCondition() {
+        val onCheerAction = OnCheerAction(CheerAmountCondition.lessThanOrEqual(500)) { _, cheerAmount ->
+            textMessage("test", "someone has cheered $cheerAmount bits")
+        }
+
+        val session = mock(TmiSession::class.java)!!
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 499 bits"))
+        verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 500 bits"))
+        verify(session, times(2)).textMessage(anyOrNull(), anyOrNull())
+    }
+
 }
