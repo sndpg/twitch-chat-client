@@ -3,6 +3,8 @@ package io.github.sykq.tcc
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
 import io.github.sykq.tcc.internal.prependIfMissing
+import org.reactivestreams.Publisher
+import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import org.springframework.web.reactive.socket.client.WebSocketClient
@@ -57,6 +59,9 @@ class TmiClient(configure: Builder.() -> Unit) {
      * Otherwise [TmiClient.Builder.onConnect] and [TmiClient.Builder.onMessage] (as supplied on instance creation
      * through the according [Builder]) will be used to execute actions upon connecting and receiving messages
      * respectively.
+     *
+     * @param onConnect the actions to execute upon connecting to the TMI.
+     * @param onMessage the actions to perform when receiving a message
      */
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
@@ -70,9 +75,9 @@ class TmiClient(configure: Builder.() -> Unit) {
                     .toFlux()))
                 .then(resolveOnConnect(TmiSession(it, channels), onConnect))
                 .thenMany(it.receive()
+                    .flatMap { message -> pong(it, message) }
                     .map { message -> message.payloadAsText }
                     .log("", Level.FINE)
-                    .flatMap { message -> pong(it, message) }
                     .filter(TmiMessage::canBeCreatedFromPayloadAsText)
                     .map(TmiMessage::fromPayloadAsText)
                     .flatMap { tmiMessage ->
@@ -83,11 +88,48 @@ class TmiClient(configure: Builder.() -> Unit) {
         }
     }
 
+    /**
+     * Essentially the same as [connect], but takes functions using Spring's [WebSocketSession], [WebSocketMessage] and
+     * the reactive streams' [Publisher] as arguments for [onConnect] and [onMessage] (instead of the wrapping helper
+     * types [TmiSession] and [TmiMessage]).
+     *
+     * Contrary to [connect], does not filter any messages, e.g. a `PING` will be forwarded to the [onMessage] function.
+     *
+     * @param onConnect the actions to execute upon connecting to the TMI.
+     * @param onMessage the actions to perform when receiving a message
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun connectWithPublisher(
+        onConnect: (WebSocketSession) -> Publisher<Void> = { Mono.empty() },
+        onMessage: (WebSocketSession, WebSocketMessage) -> Publisher<Void> = { _, _ -> Mono.empty() }
+    ): Mono<Void> {
+        return client.execute(URI.create(url)) {
+            it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
+                .thenMany(it.send(channels
+                    .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
+                    .toFlux()))
+                .thenMany(onConnect(it))
+                .thenMany(it.receive()
+                    .log("", Level.FINE)
+                    .flatMap { message -> pong(it, message) }
+                    .flatMap { message -> onMessage(it, message) }
+                    .log("", Level.FINE))
+                .then()
+        }
+    }
+
     fun block(
         onConnect: ((TmiSession) -> Unit)? = null,
         onMessage: (TmiSession.(TmiMessage) -> Unit)? = null
     ) {
         connect(onConnect, onMessage).block()
+    }
+
+    fun blockWithPublisher(
+        onConnect: (WebSocketSession) -> Publisher<Void> = { Mono.empty() },
+        onMessage: (WebSocketSession, WebSocketMessage) -> Publisher<Void> = { _, _ -> Mono.empty() }
+    ) {
+        connectWithPublisher(onConnect, onMessage).block()
     }
 
     private fun resolveOnConnect(
@@ -108,12 +150,14 @@ class TmiClient(configure: Builder.() -> Unit) {
         return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
     }
 
-    private fun pong(webSocketSession: WebSocketSession, message: String): Mono<String> {
+    private fun pong(webSocketSession: WebSocketSession, message: WebSocketMessage): Mono<WebSocketMessage> {
         // TODO: WebSocketSession provides pongMessage capabilities, soo ... maybe use it
-        return if (message.startsWith("PING")) {
-            webSocketSession.send(Mono.just(webSocketSession.textMessage(message.replace("PING", "PONG"))))
+        val payloadAsText = message.payloadAsText
+
+        return if (payloadAsText.startsWith("PING")) {
+            webSocketSession.send(Mono.just(webSocketSession.textMessage(payloadAsText.replace("PING", "PONG"))))
                 .log("", Level.FINE)
-                .then(message.toMono())
+                .flatMap { message.toMono() }
         } else {
             message.toMono()
         }
