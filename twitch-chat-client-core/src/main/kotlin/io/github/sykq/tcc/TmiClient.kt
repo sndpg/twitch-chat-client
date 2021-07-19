@@ -82,6 +82,14 @@ class TmiClient internal constructor(configurer: Configurer) {
         }
     }
 
+    /**
+     * Allows to directly manipulate the [Flux] returned from [WebSocketSession.receive] by providing an according
+     * [onMessage] function.
+     *
+     * @param onConnect the actions to execute upon connecting to the TMI.
+     * @param onMessage function to process the Flux returned from [WebSocketSession.receive]. The emitted by the flux
+     * are mapped to [TmiMessage] before being handed over to the onMessage function
+     */
     fun receive(
         onConnect: ((TmiSession) -> Unit)? = null,
         onMessage: (Flux<TmiMessage>) -> Mono<Void> = { it.then() }
@@ -102,6 +110,14 @@ class TmiClient internal constructor(configurer: Configurer) {
         }
     }
 
+    /**
+     * Allows to directly manipulate the [Flux] returned from [WebSocketSession.receive] by providing an according
+     * [onMessage] function.
+     *
+     * @param onConnect the actions to execute upon connecting to the TMI.
+     * @param onMessage function to process the Flux returned from [WebSocketSession.receive] and also allows for access
+     * of the [TmiSession] (holding the underlying [WebSocketSession]) to send messages in response to incoming data.
+     */
     fun receiveWithSession(
         onConnect: ((TmiSession) -> Unit)? = null,
         onMessage: (TmiSession, Flux<TmiMessage>) -> Mono<Void> = { _, messageFlux -> messageFlux.then() }
@@ -123,6 +139,13 @@ class TmiClient internal constructor(configurer: Configurer) {
         }
     }
 
+    /**
+     * Allows to directly manipulate the [Flux] returned from [WebSocketSession.receive] by providing an according
+     * [onMessage] function.
+     *
+     * @param onConnect the actions to execute upon connecting to the TMI.
+     * @param onMessage function to process the Flux returned from [WebSocketSession.receive].
+     */
     fun receiveWebSocketMessage(
         onConnect: ((TmiSession) -> Unit)? = null,
         onMessage: (Flux<WebSocketMessage>) -> Mono<Void> = { it.then() }
