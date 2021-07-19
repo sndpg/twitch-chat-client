@@ -3,21 +3,30 @@ package io.github.sykq.tcc
 import io.github.sykq.tcc.internal.prependIfMissing
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
+import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toFlux
 
 /**
  * Wrapper over [WebSocketSession] with methods specific to Twitch chat / the Twitch Messaging Interface (TMI).
+ *
+ * All [actions] added to a session, will be queued for execution and only be executed when an according send call on
+ * the webSocketSession which created these actions (=text messages) is invoked.
+ *
+ * This usually happens by retrieving the actions through [consumeActions] and sending them with [WebSocketSession.send]
+ * afterwards. [consumeActions] also clears all queued actions, so each action can only be consumed (and therefore
+ * executed) only once.
  *
  * @param webSocketSession the [WebSocketSession] to wrap.
  * @param joinedChannels the currently joined channels.
  */
 class TmiSession(internal val webSocketSession: WebSocketSession, internal val joinedChannels: MutableList<String>) {
-    internal val actions: MutableList<WebSocketMessage> = mutableListOf()
+    private val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
      * Send given [message] to the provided [channel].
      */
     fun textMessage(channel: String, message: String) {
-        actions.add(webSocketSession.textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message"))
+        actions.add ( webSocketSession.textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message") )
     }
 
     /**
@@ -132,6 +141,16 @@ class TmiSession(internal val webSocketSession: WebSocketSession, internal val j
      */
     fun marker(channel: String, description: String) {
         textMessage(channel, "/marker $description")
+    }
+
+    /**
+     * Map the current actions to a [Flux] and clear the list of cached actions.
+     */
+    internal fun consumeActions(): Flux<WebSocketMessage> {
+        // we need a copy of the actions list, otherwise it will be cleared, before the flux is processed
+        val asFlux = actions.toList().toFlux()
+        actions.clear()
+        return asFlux
     }
 
 }

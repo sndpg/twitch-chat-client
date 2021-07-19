@@ -82,6 +82,65 @@ class TmiClient internal constructor(configurer: Configurer) {
         }
     }
 
+    fun receive(
+        onConnect: ((TmiSession) -> Unit)? = null,
+        onMessage: (Flux<TmiMessage>) -> Mono<Void> = { it.then() }
+    ): Mono<Void> {
+        return client.execute(URI.create(url)) {
+            it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
+                .thenMany(it.send(channels
+                    .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
+                    .toFlux()))
+                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .thenMany(onMessage(it.receive()
+                    .flatMap { message -> pong(it, message) }
+                    .map { message -> message.payloadAsText }
+                    .filter(TmiMessage::canBeCreatedFromPayloadAsText)
+                    .map { message -> TmiMessage.fromPayloadAsText(message) })
+                )
+                .then()
+        }
+    }
+
+    fun receiveWithSession(
+        onConnect: ((TmiSession) -> Unit)? = null,
+        onMessage: (TmiSession, Flux<TmiMessage>) -> Mono<Void> = { _, messageFlux -> messageFlux.then() }
+    ): Mono<Void> {
+        return client.execute(URI.create(url)) {
+            it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
+                .thenMany(it.send(channels
+                    .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
+                    .toFlux()))
+                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .thenMany(onMessage(
+                    TmiSession(it, channels), it.receive()
+                        .flatMap { message -> pong(it, message) }
+                        .map { message -> message.payloadAsText }
+                        .filter(TmiMessage::canBeCreatedFromPayloadAsText)
+                        .map { message -> TmiMessage.fromPayloadAsText(message) })
+                )
+                .then()
+        }
+    }
+
+    fun receiveWebSocketMessage(
+        onConnect: ((TmiSession) -> Unit)? = null,
+        onMessage: (Flux<WebSocketMessage>) -> Mono<Void> = { it.then() }
+    ): Mono<Void> {
+        return client.execute(URI.create(url)) {
+            it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
+                .thenMany(it.send(channels
+                    .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
+                    .toFlux()))
+                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .thenMany(
+                    onMessage(it.receive()
+                        .flatMap { message -> pong(it, message) })
+                )
+                .then()
+        }
+    }
+
     /**
      * Essentially the same as [connect], but takes functions using Spring's [WebSocketSession], [WebSocketMessage] and
      * the reactive streams' [Publisher] as arguments for [onConnect] and [onMessage] (instead of the wrapping helper
@@ -131,7 +190,7 @@ class TmiClient internal constructor(configurer: Configurer) {
         onConnect: ((TmiSession) -> Unit)?
     ): Mono<Void> {
         if (onConnect == null) this.onConnect(tmiSession) else onConnect(tmiSession)
-        return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
+        return tmiSession.webSocketSession.send(tmiSession.consumeActions())
     }
 
     private fun resolveOnMessage(
@@ -141,7 +200,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     ): Mono<Void> {
         val resolvedOnMessage = onMessage ?: this.onMessage
         resolvedOnMessage(tmiSession, tmiMessage)
-        return tmiSession.webSocketSession.send(tmiSession.actions.toFlux())
+        return tmiSession.webSocketSession.send(tmiSession.consumeActions())
     }
 
     private fun pong(webSocketSession: WebSocketSession, message: WebSocketMessage): Mono<WebSocketMessage> {
