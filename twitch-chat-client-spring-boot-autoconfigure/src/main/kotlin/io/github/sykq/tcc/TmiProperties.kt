@@ -7,7 +7,7 @@ const val TMI_CONFIGURATION_PROPERTIES_PREFIX = "tmi"
 
 @ConstructorBinding
 @ConfigurationProperties(TMI_CONFIGURATION_PROPERTIES_PREFIX)
-data class TmiProperties(val bots: List<Bot>) {
+data class TmiProperties(val bots: List<Bot> = listOf()) {
 
     data class Bot(
 

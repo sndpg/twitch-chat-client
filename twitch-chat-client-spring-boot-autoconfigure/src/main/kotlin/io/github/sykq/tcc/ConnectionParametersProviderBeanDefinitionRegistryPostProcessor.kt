@@ -1,15 +1,21 @@
 package io.github.sykq.tcc
 
 import org.springframework.beans.factory.config.BeanDefinition
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.BeanDefinitionBuilder
+import org.springframework.beans.factory.support.BeanDefinitionRegistry
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
 import org.springframework.core.env.Environment
 
-class ConnectionParametersProviderBeanFactory(private val environment: Environment) : BeanFactoryPostProcessor {
+class ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(
+    private val environment: Environment,
+    private val tmiProperties: TmiProperties,
+) : BeanDefinitionRegistryPostProcessor {
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
-        val tmiProperties = beanFactory.getBean(TmiProperties::class.java)
+    }
+
+    override fun postProcessBeanDefinitionRegistry(registry: BeanDefinitionRegistry) {
         tmiProperties.bots
             .map {
                 val botName = it.name.resolveBotName(it.usernameProperty)
@@ -20,12 +26,12 @@ class ConnectionParametersProviderBeanFactory(private val environment: Environme
                             tmiProperties,
                             environment
                         )
-                    }.beanDefinition
+                    }.setScope(BeanDefinition.SCOPE_SINGLETON)
+                        .beanDefinition
                 ConnectionParametersProviderBeanDefinitionSpec(botName, beanDefinition)
             }.forEach {
-                beanFactory.registerSingleton("${it.botName}ConnectionParametersProvider", it.beanDefinition)
+                registry.registerBeanDefinition("${it.botName}ConnectionParametersProvider", it.beanDefinition)
             }
-
     }
 
     private fun String?.resolveBotName(usernameProperty: String?): String =
