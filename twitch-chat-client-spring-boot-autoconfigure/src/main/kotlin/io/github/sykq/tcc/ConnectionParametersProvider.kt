@@ -4,8 +4,10 @@ package io.github.sykq.tcc
 //  a service)
 interface ConnectionParametersProvider {
 
-    fun getConnectionParameters(botName: String): ConnectionParameters
+    val botName: String
 
-    data class ConnectionParameters(val username: String, val password: String)
+    fun getConnectionParameters(): ConnectionParameters
 
 }
+
+data class ConnectionParameters(val username: String, val password: String)

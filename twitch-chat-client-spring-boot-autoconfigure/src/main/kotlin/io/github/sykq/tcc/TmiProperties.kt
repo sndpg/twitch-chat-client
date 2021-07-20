@@ -3,11 +3,18 @@ package io.github.sykq.tcc
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
-@ConstructorBinding
-@ConfigurationProperties("tmi")
-data class TmiProperties(val clients: List<Client>) {
+const val TMI_CONFIGURATION_PROPERTIES_PREFIX = "tmi"
 
-    data class Client(
+@ConstructorBinding
+@ConfigurationProperties(TMI_CONFIGURATION_PROPERTIES_PREFIX)
+data class TmiProperties(val bots: List<Bot>) {
+
+    data class Bot(
+
+        /**
+         * The name of the Bot. If not set, the [username] of the Twitch account will be used instead.
+         */
+        val name: String?,
 
         /**
          * The `username` which will be used for connecting to the Twitch Messaging Interface (TMI).
