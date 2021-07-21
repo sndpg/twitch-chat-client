@@ -1,12 +1,12 @@
 package io.github.sykq.tcc
 
-import org.junit.jupiter.api.Disabled
+import mu.KotlinLogging
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
 
-@Disabled
+private val LOG = KotlinLogging.logger {}
+
+//@Disabled
 internal class TmiClientTest {
 
     @Test
@@ -19,8 +19,8 @@ internal class TmiClientTest {
 //            channels += "harrie"
 //            channels += "dumbdog"
             onConnect {
-                println("connected")
-//                textMessage(joinedChannels[0], "connected")
+                LOG.warn("connected!!!!!")
+                textMessage(joinedChannels[0], "connected")
 //                clearChat("sykq")
 //                textMessage("sykq", "Hi test")
             }
