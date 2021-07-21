@@ -1,10 +1,12 @@
 package io.github.sykq.tcc
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
+@Disabled
 internal class TmiClientTest {
 
     @Test

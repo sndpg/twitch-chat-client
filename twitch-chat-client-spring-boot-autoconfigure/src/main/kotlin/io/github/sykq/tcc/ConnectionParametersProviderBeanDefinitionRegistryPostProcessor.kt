@@ -13,6 +13,7 @@ class ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(
 ) : BeanDefinitionRegistryPostProcessor {
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
+        // nothing to do
     }
 
     override fun postProcessBeanDefinitionRegistry(registry: BeanDefinitionRegistry) {
