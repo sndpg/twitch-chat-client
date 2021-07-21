@@ -5,12 +5,17 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.BeanDefinitionBuilder
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
+import org.springframework.boot.context.properties.bind.Binder
 import org.springframework.core.env.Environment
 
 class ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(
     private val environment: Environment,
-    private val tmiProperties: TmiProperties,
 ) : BeanDefinitionRegistryPostProcessor {
+
+    private val tmiProperties: TmiProperties by lazy {
+        Binder.get(environment).bind(TMI_CONFIGURATION_PROPERTIES_PREFIX, TmiProperties::class.java)
+            .orElse(null)
+    }
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
         // nothing to do
