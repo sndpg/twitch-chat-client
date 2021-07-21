@@ -297,8 +297,8 @@ class TmiClient internal constructor(configurer: Configurer) {
 
     companion object {
 
-        private const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
-        private const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
+        const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
+        const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
 
         private fun resolveProperty(key: String, providedValue: String?) = when {
             providedValue != null && providedValue.isNotBlank() -> providedValue

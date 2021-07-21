@@ -29,7 +29,7 @@ data class TmiProperties(val bots: List<Bot> = listOf()) {
          *
          * Use either this or the [username] to provide the desired username.
          */
-        val usernameProperty: String?,
+        val usernameProperty: String? = TmiClient.TMI_CLIENT_USERNAME_KEY,
 
         /**
          * The `password` which will be used for connecting to the Twitch Messaging Interface (TMI).
@@ -47,7 +47,7 @@ data class TmiProperties(val bots: List<Bot> = listOf()) {
          *
          * Use either this or the [password] to provide the appropriate password for the given username.
          */
-        val passwordProperty: String?
+        val passwordProperty: String? = TmiClient.TMI_CLIENT_PASSWORD_KEY
     )
 
 }
