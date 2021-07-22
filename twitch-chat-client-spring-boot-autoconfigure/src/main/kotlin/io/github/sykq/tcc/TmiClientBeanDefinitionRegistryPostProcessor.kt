@@ -6,6 +6,9 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
 import org.springframework.context.ApplicationContext
 
+// TODO: don't create such "unbound" (meaning not bound to a bot) TmiClient bean, but create them (+ add them to a bot
+//  at the same time) within a BotFactoryBean, since there, we also know which onConnect/onMessage actions we have to
+//  consider and which channels to join
 class TmiClientBeanDefinitionRegistryPostProcessor(private val applicationContext: ApplicationContext) :
     BeanDefinitionRegistryPostProcessor {
 

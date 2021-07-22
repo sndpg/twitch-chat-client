@@ -1,4 +1,4 @@
-package io.github.sykq.tcc.bot.action
+package io.github.sykq.tcc.action
 
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession

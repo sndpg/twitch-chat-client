@@ -1,4 +1,4 @@
-package io.github.sykq.tcc.bot.action
+package io.github.sykq.tcc.action
 
 /**
  * Defines a command with optional arguments from an incoming text message identified by the [OnCommandAction.command].

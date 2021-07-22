@@ -12,9 +12,9 @@ fun defaultBot(configure: Bot.Configurer<DefaultBot>.() -> Unit): DefaultBot {
 }
 
 class DefaultBot internal constructor(configurer: Bot.Configurer<DefaultBot>) : Bot {
-    private val tmiClient: TmiClient = configurer.tmiClient!!
+    override val tmiClient: TmiClient = configurer.tmiClient!!
 
-    private val name: String = configurer.name ?: UUID.randomUUID().toString()
+    override val name: String = configurer.name ?: UUID.randomUUID().toString()
     private val initialize: DefaultBot.() -> Unit = configurer.initialize
     private val channelsToJoin: List<String> = configurer.channels
     private val onConnectActions: List<TmiSession.() -> Unit> = listOf(configurer.onConnect)

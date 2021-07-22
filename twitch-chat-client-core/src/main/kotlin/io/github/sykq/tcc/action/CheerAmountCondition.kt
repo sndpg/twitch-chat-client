@@ -1,4 +1,4 @@
-package io.github.sykq.tcc.bot.action
+package io.github.sykq.tcc.action
 
 /**
  * Conditions for cheer amount checks within [OnCheerAction]s.

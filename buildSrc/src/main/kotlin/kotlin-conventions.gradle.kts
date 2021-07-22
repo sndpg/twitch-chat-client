@@ -11,17 +11,21 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
+val kotlinLoggingVersion = "2.0.10"
 val mockitoKotlinVersion = "3.2.0"
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.2"))
     implementation(kotlin("stdlib"))
 
+    implementation("org.slf4j:slf4j-api")
+    implementation("ch.qos.logback:logback-classic")
+    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-
 }
 
 java {

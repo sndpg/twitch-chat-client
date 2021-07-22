@@ -1,8 +1,8 @@
-package io.github.sykq.tcc.bot.action
+package io.github.sykq.tcc.action
 
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
-import io.github.sykq.tcc.bot.action.OnCommandAction.Options
+import io.github.sykq.tcc.action.OnCommandAction.Options
 
 /**
  * Action in response to an incoming message, which will only be executed if the message is equal to the

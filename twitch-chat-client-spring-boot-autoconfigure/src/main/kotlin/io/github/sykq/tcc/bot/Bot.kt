@@ -3,12 +3,27 @@ package io.github.sykq.tcc.bot
 import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
+import io.github.sykq.tcc.tmiClient
 
 /**
  * The contract for a Class which will connect to the TMI (Twitch Messaging Interface) and perform certain actions
  * depending on incoming messages.
  */
 interface Bot {
+
+    /**
+     * The name of the bot.
+     */
+    val name: String
+
+    val tmiClient: TmiClient?
+        get() = null
+
+    /**
+     * Automatically connect after starting
+     */
+    val autoConnect: Boolean
+        get() = true
 
     /**
      * The actions to execute when this Bot is first created.
@@ -42,7 +57,7 @@ interface Bot {
     class Configurer<T : Bot> {
 
         /**
-         * An optional name for your bot which can be used to refer to within an application.
+         * The name of the bot which can be used to refer to within an application.
          */
         var name: String? = null
 
@@ -64,15 +79,13 @@ interface Bot {
         var tmiClient: TmiClient? = null
             get() {
                 if (field == null) {
-                    val tmiClientConfigurer = TmiClient.Configurer()
-                    tmiClientConfigurer.username = username
-                    tmiClientConfigurer.password = password
-                    tmiClientConfigurer.channels = channels
-
-                    tmiClientConfigurer.onConnect = onConnect
-                    tmiClientConfigurer.onMessage = onMessage
-
-                    field = TmiClient(tmiClientConfigurer)
+                    field = tmiClient {
+                        username = this@Configurer.username
+                        password = this@Configurer.password
+                        channels = this@Configurer.channels
+                        onConnect { onConnect(this) }
+                        onMessage { onConnect(this) }
+                    }
                 }
                 return field
             }
