@@ -16,6 +16,12 @@ interface Bot {
      */
     val name: String
 
+    /**
+     * The channels which this bot should join after connecting.
+     */
+    val channels: List<String>
+        get() = listOf()
+
     val tmiClient: TmiClient?
         get() = null
 

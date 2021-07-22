@@ -1,5 +1,7 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.bot.Bot
+import io.github.sykq.tcc.bot.BotRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition
@@ -23,6 +25,11 @@ class TmiAutoconfiguration {
     @ConditionalOnBean(ConnectionParametersProviderBeanDefinitionRegistryPostProcessor::class)
     fun tmiClientBeanDefinitionRegistryPostProcessor(applicationContext: ApplicationContext) =
         TmiClientBeanDefinitionRegistryPostProcessor(applicationContext)
+
+    @Bean
+    @ConditionalOnBean(Bot::class)
+    fun botRegistry(bots: List<Bot>, connectionParametersProviders: List<ConnectionParametersProvider>): BotRegistry =
+        BotRegistry(bots, connectionParametersProviders)
 
     class BotPropertiesProvidedCondition : SpringBootCondition() {
         override fun getMatchOutcome(context: ConditionContext?, metadata: AnnotatedTypeMetadata?): ConditionOutcome {

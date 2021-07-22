@@ -1,6 +1,5 @@
 package io.github.sykq.tcc.bot
 
-import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
 import org.assertj.core.api.Assertions.assertThat
