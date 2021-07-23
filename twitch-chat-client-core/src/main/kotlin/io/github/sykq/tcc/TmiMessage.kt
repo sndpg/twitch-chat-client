@@ -1,6 +1,8 @@
 package io.github.sykq.tcc
 
-data class TmiMessage(val channel: String, val user: String, val message: String) {
+import java.time.LocalDateTime
+
+data class TmiMessage(val timestamp: LocalDateTime, val channel: String, val user: String, val message: String) {
     companion object {
 
         fun canBeCreatedFromPayloadAsText(payloadAsText: String): Boolean {
@@ -16,7 +18,7 @@ data class TmiMessage(val channel: String, val user: String, val message: String
 
             val message = payloadAsText.substring(channelNameEndIndex + 1).removePrefix(":").removeSuffix("\r\n")
 
-            return TmiMessage(channel, user, message)
+            return TmiMessage(LocalDateTime.now(), channel, user, message)
         }
     }
 }
