@@ -26,14 +26,14 @@ internal class TmiClientTest {
 //                textMessage("sykq", "Hi test")
             }
             onMessage {
-                println("MESSAGE=${it.message} received at ${it.timestamp}")
-//                if (message.message == "!hello") {
-//                    session.textMessage(message.channel, "Hi ${message.user}!")
+                println("MESSAGE=${it.text} received at ${it.timestamp}")
+//                if (message.text == "!hello") {
+//                    session.textMessage(message.channel, "Hi ${text.user}!")
 //                }
-//                if (it.message  == "!emoteonly"){
+//                if (it.text  == "!emoteonly"){
 //                    emoteOnly(it.channel)
 //                }
-//                if (it.message == "!emoteonlyoff"){
+//                if (it.text == "!emoteonlyoff"){
 //                    emoteOnlyOff(it.channel)
 //                }
             }
@@ -68,7 +68,7 @@ internal class TmiClientTest {
         }
 
         tmiClient.receive { messageFlux ->
-            messageFlux.filter { it.message == "test" }
+            messageFlux.filter { it.text == "test" }
                 .doOnNext {
                     println("$it received")
                 }
@@ -86,7 +86,7 @@ internal class TmiClientTest {
         }
 
         tmiClient.receiveWithSession { session, messageFlux ->
-            messageFlux.filter { it.message == "test" }
+            messageFlux.filter { it.text == "test" }
                 .doOnNext {
                     println("$it received")
 

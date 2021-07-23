@@ -17,8 +17,8 @@ class OnCheerAction(
 ) : (TmiSession, TmiMessage) -> Unit {
 
     override fun invoke(session: TmiSession, message: TmiMessage) {
-        if (message.message.startsWith("cheer")) {
-            val cheerAmount = message.message.substringAfter("cheer").toInt()
+        if (message.text.startsWith("cheer")) {
+            val cheerAmount = message.text.substringAfter("cheer").toInt()
             if (amountCondition(cheerAmount)) {
                 action(session, message, cheerAmount)
             }

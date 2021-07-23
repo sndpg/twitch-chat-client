@@ -6,7 +6,7 @@ data class TmiMessage(
     val timestamp: ZonedDateTime,
     val channel: String,
     val user: String,
-    val message: String
+    val text: String
 ) {
     companion object {
 
@@ -21,9 +21,9 @@ data class TmiMessage(
             val channelNameEndIndex = payloadAsText.indexOf(' ', channelNameStartIndex)
             val channel = payloadAsText.slice((channelNameStartIndex + 1) until channelNameEndIndex)
 
-            val message = payloadAsText.substring(channelNameEndIndex + 1).removePrefix(":").removeSuffix("\r\n")
+            val text = payloadAsText.substring(channelNameEndIndex + 1).removePrefix(":").removeSuffix("\r\n")
 
-            return TmiMessage(ZonedDateTime.now(), channel, user, message)
+            return TmiMessage(ZonedDateTime.now(), channel, user, text)
         }
     }
 }
