@@ -5,6 +5,7 @@ package io.github.sykq.tcc
 interface ConnectionParametersProvider {
 
     val botName: String
+        get() = "*"
 
     fun getConnectionParameters(): ConnectionParameters
 

@@ -4,6 +4,7 @@ import io.github.sykq.tcc.ConnectionParametersProvider
 import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.tmiClient
 import mu.KotlinLogging
+import kotlin.concurrent.thread
 
 private val LOG = KotlinLogging.logger {}
 
@@ -11,8 +12,10 @@ class BotRegistry(
     bots: List<Bot>,
     connectionParametersProviders: List<ConnectionParametersProvider>
 ) {
-    private val bots = bots.associateBy { it.name }
     private val tmiClients = resolveTmiClients(bots, connectionParametersProviders)
+    val bots = bots.associateBy { it.name }
+    val botNames
+        get() = bots.keys.toList()
 
     init {
         bots.filter {
@@ -21,16 +24,20 @@ class BotRegistry(
     }
 
     fun connect(botName: String) {
-        bots[botName]?.let {
-            val tmiClient = tmiClients[it.name]!!
-            tmiClient.block()
-        } ?: LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
+        thread {
+            bots[botName]?.let {
+                val tmiClient = tmiClients[it.name]!!
+                tmiClient.block()
+            } ?: LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
+        }
     }
 
     fun connectAll() {
         bots.forEach {
             val tmiClient = tmiClients[it.key]!!
-            tmiClient.block()
+            thread {
+                tmiClient.block()
+            }
         }
     }
 
@@ -55,7 +62,7 @@ class BotRegistry(
         // maybe we should also check for already existing TmiClient (beans) and use the if their connection params are
         // the same as the currently required ones? Is this even possible with the current visibility of TmiClient's
         // members?
-        return connectionParametersProviders[bot.name]?.let {
+        return connectionParametersProviders.getConnectionParametersProvider(bot.name).let {
             val connectionParameters = it.getConnectionParameters()
             tmiClient {
                 username = connectionParameters.username
@@ -65,8 +72,12 @@ class BotRegistry(
                 onConnect { bot.onConnect(this) }
                 onMessage { message -> bot.onMessage(this, message) }
             }
-        } ?: throw Exception(
-            "no ConnectionParametersProvider found for bot with name ${bot.name}. " +
+        }
+    }
+
+    private fun Map<String, ConnectionParametersProvider>.getConnectionParametersProvider(botName: String): ConnectionParametersProvider {
+        return this[botName] ?: this["*"] ?: throw Exception(
+            "no ConnectionParametersProvider found for bot with name $botName and no default provider registered. " +
                     "Either define a bean of such type for the given bot or set according tmi prefixed properties."
         )
     }

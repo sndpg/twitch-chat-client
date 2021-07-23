@@ -4,6 +4,7 @@ import io.github.sykq.tcc.bot.Bot
 import io.github.sykq.tcc.bot.BotRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
@@ -25,6 +26,18 @@ class TmiAutoconfiguration {
     @ConditionalOnBean(ConnectionParametersProviderBeanDefinitionRegistryPostProcessor::class)
     fun tmiClientBeanDefinitionRegistryPostProcessor(applicationContext: ApplicationContext) =
         TmiClientBeanDefinitionRegistryPostProcessor(applicationContext)
+
+    @Bean
+    @ConditionalOnProperty(TmiClient.TMI_CLIENT_USERNAME_KEY, TmiClient.TMI_CLIENT_PASSWORD_KEY)
+    fun defaultConnectionParametersProvider(environment: Environment): ConnectionParametersProvider {
+        return object : ConnectionParametersProvider {
+            override fun getConnectionParameters(): ConnectionParameters {
+                val username = environment.getProperty(TmiClient.TMI_CLIENT_USERNAME_KEY)!!
+                val password = environment.getProperty(TmiClient.TMI_CLIENT_PASSWORD_KEY)!!
+                return ConnectionParameters(username, password)
+            }
+        }
+    }
 
     @Bean
     @ConditionalOnBean(Bot::class)

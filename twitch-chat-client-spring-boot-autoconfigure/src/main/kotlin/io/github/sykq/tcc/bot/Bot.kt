@@ -60,6 +60,8 @@ interface Bot {
      */
     fun beforeShutdown() {}
 
+    fun getProperties(): Map<String, Any> = mapOf()
+
     class Configurer<T : Bot> {
 
         /**

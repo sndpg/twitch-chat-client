@@ -5,11 +5,11 @@ plugins {
 val coroutinesVersion = "1.5.1"
 
 dependencies {
-    implementation("org.springframework:spring-webflux")
-    implementation("io.projectreactor.netty:reactor-netty-http")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
+    api("org.springframework:spring-webflux")
+    api("io.projectreactor.netty:reactor-netty-http")
+    api("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
 
     testImplementation("io.projectreactor:reactor-test")
 }

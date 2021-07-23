@@ -64,7 +64,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
             it.send(Flux.just(it.textMessage("PASS $password"), it.textMessage("NICK $username")))
-                .doOnError {  }
+                .doOnError { throw IllegalStateException("could not connect with TMI using username $username. Check credentials") }
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
