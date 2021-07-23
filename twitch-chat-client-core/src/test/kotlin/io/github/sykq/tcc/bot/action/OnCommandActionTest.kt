@@ -8,6 +8,7 @@ import org.mockito.Mockito.*
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
+import java.time.ZonedDateTime
 
 internal class OnCommandActionTest {
 
@@ -18,7 +19,7 @@ internal class OnCommandActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage("", "", "!test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test abc 123"))
 
         verify(session, times(1))
             .textMessage(eq("test"), eq("command received with arguments: [abc, 123]"))
@@ -31,7 +32,7 @@ internal class OnCommandActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage("", "", "test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "test abc 123"))
 
         verify(session, never()).textMessage(anyOrNull(), anyOrNull())
     }
@@ -48,7 +49,7 @@ internal class OnCommandActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage("", "", "!test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test abc 123"))
 
         verify(session, never()).textMessage(anyOrNull(), anyOrNull())
     }
@@ -65,7 +66,7 @@ internal class OnCommandActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage("", "", "!test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test"))
 
         verify(session, times(1))
             .textMessage(eq("test"), eq("command without arguments received"))
@@ -80,8 +81,8 @@ internal class OnCommandActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage("", "", "!test"))
-        onCommandAction.invoke(session, TmiMessage("", "", "!Test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!Test"))
 
         verify(session, times(1))
             .textMessage(eq("test"), eq("command without arguments received"))

@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 
 private val LOG = KotlinLogging.logger {}
 
-//@Disabled
+@Disabled
 internal class TmiClientTest {
 
     @Test
@@ -21,12 +21,12 @@ internal class TmiClientTest {
 //            channels += "dumbdog"
             onConnect {
                 LOG.warn("connected!!!!!")
-                textMessage(joinedChannels[0], "connected")
+//                textMessage(joinedChannels[0], "connected")
 //                clearChat("sykq")
 //                textMessage("sykq", "Hi test")
             }
             onMessage {
-                println("MESSAGE=${it.message}")
+                println("MESSAGE=${it.message} received at ${it.timestamp}")
 //                if (message.message == "!hello") {
 //                    session.textMessage(message.channel, "Hi ${message.user}!")
 //                }

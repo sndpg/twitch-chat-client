@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
+import java.time.ZonedDateTime
 
 internal class OnCheerActionTest {
 
@@ -18,7 +19,7 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer123"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer123"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered"))
     }
@@ -30,7 +31,7 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "not a cheer :("))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "not a cheer :("))
 
         verify(session, never()).textMessage(anyOrNull(), anyOrNull())
     }
@@ -42,9 +43,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer123"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer501"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer123"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer501"))
 
         verify(session, times(1)).textMessage(anyOrNull(), anyOrNull())
     }
@@ -56,9 +57,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1001"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1001"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 500 bits"))
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1000 bits"))
@@ -72,9 +73,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1001"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1001"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1000 bits"))
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1001 bits"))
@@ -88,9 +89,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer499"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 500 bits"))
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 1000 bits"))
@@ -104,9 +105,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer499"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 499 bits"))
         verify(session, times(1)).textMessage(anyOrNull(), anyOrNull())
@@ -119,9 +120,9 @@ internal class OnCheerActionTest {
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer500"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer1000"))
-        onCheerAction.invoke(session, TmiMessage("", "", "cheer499"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer500"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer1000"))
+        onCheerAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "cheer499"))
 
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 499 bits"))
         verify(session, times(1)).textMessage(eq("test"), eq("someone has cheered 500 bits"))

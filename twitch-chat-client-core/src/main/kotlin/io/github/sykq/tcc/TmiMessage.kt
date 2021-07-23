@@ -2,7 +2,12 @@ package io.github.sykq.tcc
 
 import java.time.ZonedDateTime
 
-data class TmiMessage(val timestamp: ZonedDateTime, val channel: String, val user: String, val message: String) {
+data class TmiMessage(
+    val timestamp: ZonedDateTime,
+    val channel: String,
+    val user: String,
+    val message: String
+) {
     companion object {
 
         fun canBeCreatedFromPayloadAsText(payloadAsText: String): Boolean {
