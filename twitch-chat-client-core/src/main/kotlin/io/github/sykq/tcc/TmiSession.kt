@@ -19,8 +19,8 @@ import reactor.kotlin.core.publisher.toFlux
  * @param webSocketSession the [WebSocketSession] to wrap.
  * @param joinedChannels the currently joined channels.
  */
-class TmiSession(internal val webSocketSession: WebSocketSession, internal val joinedChannels: MutableList<String>) {
-    private val actions: MutableList<WebSocketMessage> = mutableListOf()
+sealed class TmiSession(internal val webSocketSession: WebSocketSession, internal val joinedChannels: MutableList<String>) {
+    protected val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
      * Send given [message] to the provided [channel].

@@ -1,9 +1,6 @@
 package io.github.sykq.tcc.bot
 
-import io.github.sykq.tcc.TmiClient
-import io.github.sykq.tcc.TmiMessage
-import io.github.sykq.tcc.TmiSession
-import io.github.sykq.tcc.tmiClient
+import io.github.sykq.tcc.*
 
 /**
  * The contract for a Class which will connect to the TMI (Twitch Messaging Interface) and perform certain actions
@@ -41,9 +38,9 @@ interface Bot {
     /**
      * The actions to execute after first connecting with the given [session].
      *
-     * @param session the [TmiSession] used by this bot.
+     * @param session the [ConfigurableTmiSession] used by this bot.
      */
-    fun onConnect(session: TmiSession)
+    fun onConnect(session: ConfigurableTmiSession)
 
     /**
      * The actions to execute upon each incoming [message] (as arriving within the [session]).
@@ -92,14 +89,14 @@ interface Bot {
                         password = this@Configurer.password
                         channels = this@Configurer.channels
                         onConnect { onConnect(this) }
-                        onMessage { onConnect(this) }
+                        onMessage { onMessage (this, it) }
                     }
                 }
                 return field
             }
 
         internal var initialize: T.() -> Unit = {}
-        internal var onConnect: TmiSession.() -> Unit = {}
+        internal var onConnect: ConfigurableTmiSession.() -> Unit = {}
         internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
         internal var beforeShutdown: T.() -> Unit = {}
 
@@ -123,7 +120,7 @@ interface Bot {
         /**
          * Provide the actions to execute upon connecting to the TMI.
          */
-        fun onConnect(doOnConnect: TmiSession.() -> Unit) {
+        fun onConnect(doOnConnect: ConfigurableTmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
 

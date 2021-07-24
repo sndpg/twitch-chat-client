@@ -41,7 +41,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     private val channels: MutableList<String> = configurer.channels
     private val client: WebSocketClient = ReactorNettyWebSocketClient()
 
-    private val onConnect: TmiSession.() -> Unit = configurer.onConnect
+    private val onConnect: ConfigurableTmiSession.() -> Unit = configurer.onConnect
     private val onMessage: TmiSession.(TmiMessage) -> Unit = configurer.onMessage
 
     /**
@@ -59,7 +59,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     @Suppress("MemberVisibilityCanBePrivate")
     fun connect(
-        onConnect: ((TmiSession) -> Unit)? = null,
+        onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (TmiSession.(TmiMessage) -> Unit)? = null
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
@@ -68,7 +68,7 @@ class TmiClient internal constructor(configurer: Configurer) {
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
-                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
                 .thenMany(it.receive()
                     .flatMap { message -> pong(it, message) }
                     .map { message -> message.payloadAsText }
@@ -76,7 +76,7 @@ class TmiClient internal constructor(configurer: Configurer) {
                     .filter(TmiMessage::canBeCreatedFromPayloadAsText)
                     .map(TmiMessage::fromPayloadAsText)
                     .flatMap { tmiMessage ->
-                        resolveOnMessage(tmiMessage, TmiSession(it, channels), onMessage)
+                        resolveOnMessage(tmiMessage, DefaultTmiSession(it, channels), onMessage)
                     }
                     .log("", Level.FINE))
                 .then()
@@ -92,7 +92,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      * are mapped to [TmiMessage] before being handed over to the onMessage function
      */
     fun receive(
-        onConnect: ((TmiSession) -> Unit)? = null,
+        onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (Flux<TmiMessage>) -> Mono<Void> = { it.then() }
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
@@ -100,7 +100,7 @@ class TmiClient internal constructor(configurer: Configurer) {
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
-                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
                 .thenMany(onMessage(it.receive()
                     .flatMap { message -> pong(it, message) }
                     .map { message -> message.payloadAsText }
@@ -120,7 +120,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      * of the [TmiSession] (holding the underlying [WebSocketSession]) to send messages in response to incoming data.
      */
     fun receiveWithSession(
-        onConnect: ((TmiSession) -> Unit)? = null,
+        onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (TmiSession, Flux<TmiMessage>) -> Mono<Void> = { _, messageFlux -> messageFlux.then() }
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
@@ -128,9 +128,9 @@ class TmiClient internal constructor(configurer: Configurer) {
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
-                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
                 .thenMany(onMessage(
-                    TmiSession(it, channels), it.receive()
+                    DefaultTmiSession(it, channels), it.receive()
                         .flatMap { message -> pong(it, message) }
                         .map { message -> message.payloadAsText }
                         .filter(TmiMessage::canBeCreatedFromPayloadAsText)
@@ -148,7 +148,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      * @param onMessage function to process the Flux returned from [WebSocketSession.receive].
      */
     fun receiveWebSocketMessage(
-        onConnect: ((TmiSession) -> Unit)? = null,
+        onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (Flux<WebSocketMessage>) -> Mono<Void> = { it.then() }
     ): Mono<Void> {
         return client.execute(URI.create(url)) {
@@ -156,7 +156,7 @@ class TmiClient internal constructor(configurer: Configurer) {
                 .thenMany(it.send(channels
                     .map { channel -> it.textMessage("JOIN ${channel.prependIfMissing('#')}") }
                     .toFlux()))
-                .then(resolveOnConnect(TmiSession(it, channels), onConnect))
+                .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
                 .thenMany(
                     onMessage(it.receive()
                         .flatMap { message -> pong(it, message) })
@@ -196,7 +196,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     }
 
     fun block(
-        onConnect: ((TmiSession) -> Unit)? = null,
+        onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (TmiSession.(TmiMessage) -> Unit)? = null
     ) {
         connect(onConnect, onMessage).block()
@@ -210,8 +210,8 @@ class TmiClient internal constructor(configurer: Configurer) {
     }
 
     private fun resolveOnConnect(
-        tmiSession: TmiSession,
-        onConnect: ((TmiSession) -> Unit)?
+        tmiSession: ConfigurableTmiSession,
+        onConnect: ((ConfigurableTmiSession) -> Unit)?
     ): Mono<Void> {
         if (onConnect == null) this.onConnect(tmiSession) else onConnect(tmiSession)
         return tmiSession.webSocketSession.send(tmiSession.consumeActions())
@@ -269,7 +269,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          */
         var channels: MutableList<String> = mutableListOf()
 
-        internal var onConnect: TmiSession.() -> Unit = {}
+        internal var onConnect: ConfigurableTmiSession.() -> Unit = {}
         internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
 
         /**
@@ -283,7 +283,7 @@ class TmiClient internal constructor(configurer: Configurer) {
         /**
          * Provide the actions to execute upon connecting to the TMI.
          */
-        fun onConnect(doOnConnect: TmiSession.() -> Unit) {
+        fun onConnect(doOnConnect: ConfigurableTmiSession.() -> Unit) {
             onConnect = doOnConnect
         }
 
