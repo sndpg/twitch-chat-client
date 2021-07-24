@@ -4,6 +4,7 @@ plugins {
     `java-library`
     `maven-publish`
     kotlin("jvm")
+    jacoco
 }
 
 repositories {
@@ -44,6 +45,11 @@ publishing {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
 
 tasks.withType<KotlinCompile> {

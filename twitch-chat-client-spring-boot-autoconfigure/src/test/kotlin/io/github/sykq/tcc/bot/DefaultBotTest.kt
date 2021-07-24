@@ -1,5 +1,6 @@
 package io.github.sykq.tcc.bot
 
+import io.github.sykq.tcc.ConfigurableTmiSession
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
 import org.assertj.core.api.Assertions.assertThat
@@ -30,7 +31,7 @@ internal class DefaultBotTest {
     fun testImplementBotWithInternalState() {
         val bot = TestBot()
 
-        val session = mock(TmiSession::class.java)
+        val session = mock(ConfigurableTmiSession::class.java)
         val message = mock(TmiMessage::class.java)
 
         bot.initialize()
@@ -52,7 +53,7 @@ internal class DefaultBotTest {
             someValues.addAll(listOf("abc", "def"))
         }
 
-        override fun onConnect(session: TmiSession) {
+        override fun onConnect(session: ConfigurableTmiSession) {
             someValues.add("xyz")
         }
 
