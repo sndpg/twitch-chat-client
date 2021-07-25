@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContextAware
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
 
+// TODO: is this even necessary?
 private val LOG = KotlinLogging.logger {}
 
 class BotFactoryBean(private val bot: Bot) : FactoryBean<Bot>, ApplicationContextAware {
