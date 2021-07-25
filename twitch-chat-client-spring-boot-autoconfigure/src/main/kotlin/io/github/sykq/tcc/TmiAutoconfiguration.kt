@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ConditionContext
 import org.springframework.context.annotation.Conditional
@@ -21,11 +20,6 @@ class TmiAutoconfiguration {
     @Conditional(BotPropertiesProvidedCondition::class)
     fun connectionParametersProviderBeanDefinitionRegistryPostProcessor(environment: Environment) =
         ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(environment)
-
-    @Bean
-    @ConditionalOnBean(ConnectionParametersProviderBeanDefinitionRegistryPostProcessor::class)
-    fun tmiClientBeanDefinitionRegistryPostProcessor(applicationContext: ApplicationContext) =
-        TmiClientBeanDefinitionRegistryPostProcessor(applicationContext)
 
     @Bean
     @ConditionalOnProperty(TmiClient.TMI_CLIENT_USERNAME_KEY, TmiClient.TMI_CLIENT_PASSWORD_KEY)
