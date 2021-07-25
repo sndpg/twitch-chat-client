@@ -1,6 +1,7 @@
 package io.github.sykq.tcc
 
 import io.github.sykq.tcc.bot.Bot
+import io.github.sykq.tcc.bot.BotBase
 import io.github.sykq.tcc.bot.BotRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -40,8 +41,8 @@ class TmiAutoconfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(Bot::class)
-    fun botRegistry(bots: List<Bot>, connectionParametersProviders: List<ConnectionParametersProvider>): BotRegistry =
+    @ConditionalOnBean(BotBase::class)
+    fun botRegistry(bots: List<BotBase>, connectionParametersProviders: List<ConnectionParametersProvider>): BotRegistry =
         BotRegistry(bots, connectionParametersProviders)
 
     class BotPropertiesProvidedCondition : SpringBootCondition() {

@@ -9,7 +9,7 @@ import kotlin.concurrent.thread
 private val LOG = KotlinLogging.logger {}
 
 class BotRegistry(
-    bots: List<Bot>,
+    bots: List<BotBase>,
     connectionParametersProviders: List<ConnectionParametersProvider>
 ) {
     private val tmiClients = resolveTmiClients(bots, connectionParametersProviders)
@@ -27,7 +27,7 @@ class BotRegistry(
         thread {
             bots[botName]?.let {
                 val tmiClient = tmiClients[it.name]!!
-                tmiClient.block()
+                prepareTmiClientInvocation(it, tmiClient)
             } ?: LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
         }
     }
@@ -36,13 +36,21 @@ class BotRegistry(
         bots.forEach {
             val tmiClient = tmiClients[it.key]!!
             thread {
-                tmiClient.block()
+                prepareTmiClientInvocation(it.value, tmiClient)
             }
         }
     }
 
+    private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient) {
+        when (botBase) {
+            is Bot -> tmiClient.block({ session -> botBase.onConnect(session) },
+                { message -> botBase.onMessage(this, message) })
+            is ReactiveBot -> botBase.receive(tmiClient)
+        }
+    }
+
     private fun resolveTmiClients(
-        bots: List<Bot>,
+        bots: List<BotBase>,
         connectionParametersProviders: List<ConnectionParametersProvider>
     ): Map<String, TmiClient> {
         val keyedConnectionParametersProvider = connectionParametersProviders.associateBy { it.botName }
@@ -52,7 +60,7 @@ class BotRegistry(
     }
 
     private fun resolveTmiClient(
-        bot: Bot,
+        bot: BotBase,
         connectionParametersProviders: Map<String, ConnectionParametersProvider>
     ): TmiClient {
         if (bot.tmiClient != null) {
@@ -68,9 +76,6 @@ class BotRegistry(
                 username = connectionParameters.username
                 password = connectionParameters.password
                 channels += bot.channels
-
-                onConnect { bot.onConnect(this) }
-                onMessage { message -> bot.onMessage(this, message) }
             }
         }
     }
