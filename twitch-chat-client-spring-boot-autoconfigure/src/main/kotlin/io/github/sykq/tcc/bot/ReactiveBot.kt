@@ -16,6 +16,10 @@ interface ReactiveBot : BotBase {
      */
     fun onMessage(session: TmiSession, messages: Flux<TmiMessage>): Mono<Void>
 
+    /**
+     * Start the [org.springframework.web.reactive.socket.WebSocketSession] and process incoming messages with the
+     * given [onMessage] method.
+     */
     fun receive(tmiClient: TmiClient) {
         tmiClient.receiveWithSession({ session -> onConnect(session) },
             { session, messages -> onMessage(session, messages) })

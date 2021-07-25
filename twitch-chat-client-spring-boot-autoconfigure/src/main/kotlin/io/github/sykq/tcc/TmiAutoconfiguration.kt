@@ -1,6 +1,5 @@
 package io.github.sykq.tcc
 
-import io.github.sykq.tcc.bot.Bot
 import io.github.sykq.tcc.bot.BotBase
 import io.github.sykq.tcc.bot.BotRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
