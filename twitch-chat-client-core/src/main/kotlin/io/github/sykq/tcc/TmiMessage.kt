@@ -2,6 +2,11 @@ package io.github.sykq.tcc
 
 import java.time.ZonedDateTime
 
+/**
+ * An incoming message from the TMI over the connected [TmiSession].
+ *
+ * Such messages can be processed through the [TmiClient.onMessage] function.
+ */
 data class TmiMessage(
     val timestamp: ZonedDateTime,
     val channel: String,
@@ -12,10 +17,18 @@ data class TmiMessage(
 ) {
     internal companion object {
 
+        /**
+         * Check if a [TmiMessage] can be created from the received textual payload.
+         *
+         * To be deemed creatable, the payload must contain the identifier for one of the supported [TmiMessageType]s.
+         */
         fun canBeCreatedFromPayloadAsText(payloadAsText: String): Boolean {
             return TmiMessageType.values().any { payloadAsText.contains(it.name) }
         }
 
+        /**
+         * Create a new [TmiMessage] from the given textual payload.
+         */
         fun fromPayloadAsText(payloadAsText: String): TmiMessage {
             return when (resolveType(payloadAsText)) {
                 TmiMessageType.PRIVMSG -> parsePrivMsg(payloadAsText)
