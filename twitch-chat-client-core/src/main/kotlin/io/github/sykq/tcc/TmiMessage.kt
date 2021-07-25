@@ -5,7 +5,8 @@ import java.time.ZonedDateTime
 /**
  * An incoming message from the TMI over the connected [TmiSession].
  *
- * Such messages can be processed through the [TmiClient.onMessage] function.
+ * Such messages can be processed through the [TmiClient.onMessage] function (and its variants, e.g.
+ * [TmiClient.receiveWithSession]).
  */
 data class TmiMessage(
     val timestamp: ZonedDateTime,
