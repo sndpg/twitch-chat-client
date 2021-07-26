@@ -1,5 +1,77 @@
+:toc:
+= Twitch Chat Client for Spring Boot
+
+A purely Kotlin library, providing integration of https://dev.twitch.tv/docs/irc/guide#Twitch_IRC_Capabilities[Twitch IRC capabilities] within JVM based applications (mainly intended for use with Spring Boot) by leveraging https://docs.spring.io/spring-integration/reference/html/web-sockets.html[Spring's WebSocket Support].
+
+== Artifacts
+=== Core
+
+To use this library add the following dependency to the gradle build file:
+
+[source,groovy]
+.build.gradle
+----
+dependencies {
+    implementation "io.github.sykq:twitch-chat-client-core:0.0.1"
+}
+----
+
+[source,kotlin]
+.build.gradle.kts
+----
+dependencies {
+    implementation("io.github.sykq:twitch-chat-client-core:0.0.1")
+}
+----
+
+When using maven, add the following to the `dependencies` sections of your `pom.xml``:
+[,xml]
+.pom.xml
+----
+<dependency>
+    <groupId>io.github.sykq</groupId>
+    <artifactId>twitch-chat-client-core</artifactId>
+    <version>0.0.1</version>
+</dependency>
+----
+
+=== Spring Boot
+To use this library in a Spring Boot application, add the following Spring Boot Starter to the dependency section of your gradle build file:
+
+[source,groovy]
+.build.gradle
+----
+dependencies {
+    implementation "io.github.sykq:twitch-chat-client-spring-boot-starter:0.0.1"
+}
+----
+[source,kotlin]
+.build.gradle.kts
+----
+dependencies {
+    implementation("io.github.sykq:twitch-chat-client-spring-boot-starter:0.0.1")
+}
+----
+
+When using maven, add the following to the `dependencies` sections of your `pom.xml``:
+[,xml]
+.pom.xml
+----
+<dependency>
+    <groupId>io.github.sykq</groupId>
+    <artifactId>twitch-chat-client-spring-boot-starter</artifactId>
+    <version>0.0.1</version>
+</dependency>
+----
+
+== Usage
+=== TmiClient
+
+=== With Spring Boot
+
+
 [IMPORTANT]
 ====
 Builds with JDK 16+ won't succeed since kapt uses some internal API which is no longer accessible in those builds. +
-JDK 11 works.
+There is a solution by setting several according compiler args (--add-opens ..., see https://youtrack.jetbrains.com/issue/KT-45545#focus=Comments-27-4862682.0-0), but for now I'll stay on JDK 11 to build.
 ====
