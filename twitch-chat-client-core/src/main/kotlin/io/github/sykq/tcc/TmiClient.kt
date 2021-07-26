@@ -282,6 +282,18 @@ class TmiClient internal constructor(configurer: Configurer) {
 
         /**
          * Provide the actions to execute upon connecting to the TMI.
+         *
+         * This is optional. The `onConnect` actions can alternatively be supplied directly when invoking one of the
+         * connection establishing methods.
+         *
+         * @see TmiClient.block
+         * @see TmiClient.blockWithPublisher
+         * @see TmiClient.connect
+         * @see TmiClient.connectWithPublisher
+         * @see TmiClient.receive
+         * @see TmiClient.receiveWithSession
+         * @see TmiClient.receiveWebSocketMessage
+         *
          */
         fun onConnect(doOnConnect: ConfigurableTmiSession.() -> Unit) {
             onConnect = doOnConnect
@@ -289,6 +301,17 @@ class TmiClient internal constructor(configurer: Configurer) {
 
         /**
          * Provide the actions to execute in response to an incoming message.
+         *
+         * This is optional. The `onMessage` actions can alternatively be supplied directly when invoking one of the
+         * connection establishing methods.
+         *
+         * @see TmiClient.block
+         * @see TmiClient.blockWithPublisher
+         * @see TmiClient.connect
+         * @see TmiClient.connectWithPublisher
+         * @see TmiClient.receive
+         * @see TmiClient.receiveWithSession
+         * @see TmiClient.receiveWebSocketMessage
          */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
             onMessage = doOnMessage
