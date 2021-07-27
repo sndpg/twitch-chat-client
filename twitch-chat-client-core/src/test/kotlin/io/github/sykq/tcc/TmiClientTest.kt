@@ -12,7 +12,7 @@ internal class TmiClientTest {
 
     @Test
 //    @Disabled
-    internal fun test() {
+    fun test() {
         val tmiClient = tmiClient {
 //            channels += "sykq"
 //            channels += "codemiko"
@@ -46,7 +46,7 @@ internal class TmiClientTest {
 
     @Test
 //    @Disabled
-    internal fun testWithPublisher() {
+    fun testWithPublisher() {
         val tmiClient = tmiClient {
             channels += "sykq"
         }
@@ -62,7 +62,7 @@ internal class TmiClientTest {
     }
 
     @Test
-    internal fun testReceive() {
+    fun testReceive() {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
@@ -80,7 +80,7 @@ internal class TmiClientTest {
     }
 
     @Test
-    internal fun testReceiveWithSession() {
+    fun testReceiveWithSession() {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {

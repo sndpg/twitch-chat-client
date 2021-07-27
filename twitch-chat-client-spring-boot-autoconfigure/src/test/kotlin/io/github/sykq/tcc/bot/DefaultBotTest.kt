@@ -10,7 +10,7 @@ import org.mockito.Mockito.mock
 internal class DefaultBotTest {
 
     @Test
-    internal fun testCreateWithBuilder() {
+    fun testCreateWithBuilder() {
         val initializedValues = mutableListOf<String>()
 
         val bot: Bot = defaultBot {
@@ -28,7 +28,7 @@ internal class DefaultBotTest {
     }
 
     @Test
-    internal fun testImplementBotWithInternalState() {
+    fun testImplementBotWithInternalState() {
         val bot = TestBot()
 
         val session = mock(ConfigurableTmiSession::class.java)

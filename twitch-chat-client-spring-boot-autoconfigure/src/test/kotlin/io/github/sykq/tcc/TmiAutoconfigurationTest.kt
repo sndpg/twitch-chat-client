@@ -10,7 +10,7 @@ internal class TmiAutoconfigurationTest {
     private val applicationContextRunner: ApplicationContextRunner = ApplicationContextRunner()
 
     @Test
-    internal fun testContextLoadsWithoutTmiClientBean() {
+    fun testContextLoadsWithoutTmiClientBean() {
         applicationContextRunner.withConfiguration(
             AutoConfigurations.of(
                 ConfigurationPropertiesAutoConfiguration::class.java,
@@ -22,7 +22,7 @@ internal class TmiAutoconfigurationTest {
     }
 
     @Test
-    internal fun testContextLoadsWithTmiClientDueToSetBotProperties() {
+    fun testContextLoadsWithTmiClientDueToSetBotProperties() {
         applicationContextRunner
             .withConfiguration(
                 AutoConfigurations.of(

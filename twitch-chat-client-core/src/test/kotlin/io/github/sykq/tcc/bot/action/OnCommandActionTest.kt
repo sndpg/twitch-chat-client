@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 internal class OnCommandActionTest {
 
     @Test
-    internal fun testPerformActionOnGivenCommandWithArguments() {
+    fun testPerformActionOnGivenCommandWithArguments() {
         val onCommandAction = OnCommandAction("!test") { _, command ->
             textMessage("test", "command received with arguments: [${command.arguments.joinToString(", ")}]")
         }
@@ -26,7 +26,7 @@ internal class OnCommandActionTest {
     }
 
     @Test
-    internal fun testPerformNoActionBecauseIncomingMessageIsNotARegisteredCommand() {
+    fun testPerformNoActionBecauseIncomingMessageIsNotARegisteredCommand() {
         val onCommandAction = OnCommandAction("!test") { _, command ->
             textMessage("test", "command received with arguments: [${command.arguments.joinToString(", ")}]")
         }
@@ -38,7 +38,7 @@ internal class OnCommandActionTest {
     }
 
     @Test
-    internal fun testPerformNoActionBecauseGivenCommandHasArgumentsWhichIsNotAllowed() {
+    fun testPerformNoActionBecauseGivenCommandHasArgumentsWhichIsNotAllowed() {
         val onCommandAction = OnCommandAction(
             "!test", OnCommandAction.Options(
                 caseInsensitiveCommand = true,
@@ -55,7 +55,7 @@ internal class OnCommandActionTest {
     }
 
     @Test
-    internal fun testPerformActionWithoutArgumentsWhileArgumentsAreNotAllowed() {
+    fun testPerformActionWithoutArgumentsWhileArgumentsAreNotAllowed() {
         val onCommandAction = OnCommandAction(
             "!test", OnCommandAction.Options(
                 caseInsensitiveCommand = true,
@@ -73,7 +73,7 @@ internal class OnCommandActionTest {
     }
 
     @Test
-    internal fun testPerformCaseSensitiveAction() {
+    fun testPerformCaseSensitiveAction() {
         val onCommandAction = OnCommandAction(
             "!Test", OnCommandAction.Options(caseInsensitiveCommand = false)
         ) { _, _ ->
