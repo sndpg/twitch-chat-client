@@ -10,7 +10,7 @@ import org.mockito.Mockito.mock
 internal class DefaultBotTest {
 
     @Test
-    fun testCreateWithBuilder() {
+    internal fun testCreateWithBuilder() {
         val initializedValues = mutableListOf<String>()
 
         val bot: Bot = defaultBot {
@@ -28,7 +28,7 @@ internal class DefaultBotTest {
     }
 
     @Test
-    fun testImplementBotWithInternalState() {
+    internal fun testImplementBotWithInternalState() {
         val bot = TestBot()
 
         val session = mock(ConfigurableTmiSession::class.java)
@@ -43,7 +43,7 @@ internal class DefaultBotTest {
         assertThat(bot.someValues).containsExactly("def", "xyz", "123", "123")
     }
 
-    class TestBot : Bot {
+    private class TestBot : Bot {
 
         override val name: String = "testBot"
 

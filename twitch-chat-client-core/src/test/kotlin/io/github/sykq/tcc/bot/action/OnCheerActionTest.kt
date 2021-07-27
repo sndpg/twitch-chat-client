@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 internal class OnCheerActionTest {
 
     @Test
-    fun testAnyAmount() {
+    internal fun testAnyAmount() {
         val onCheerAction = OnCheerAction { _, _ ->
             textMessage("test", "someone has cheered")
         }
@@ -25,7 +25,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testNoCheer() {
+    internal fun testNoCheer() {
         val onCheerAction = OnCheerAction { _, _ ->
             textMessage("test", "someone has cheered")
         }
@@ -37,7 +37,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionOnlyOnExactIncomingAmount() {
+    internal fun testPerformActionOnlyOnExactIncomingAmount() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.exactly(500)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
@@ -51,7 +51,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionWithIncomingAmountInRange() {
+    internal fun testPerformActionWithIncomingAmountInRange() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.inRange(500..1000)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
@@ -67,7 +67,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionWithGreaterThanCondition() {
+    internal fun testPerformActionWithGreaterThanCondition() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.greaterThan(500)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
@@ -83,7 +83,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionWithGreaterThanOrEqualToCondition() {
+    internal fun testPerformActionWithGreaterThanOrEqualToCondition() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.greaterThanOrEqual(500)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
@@ -99,7 +99,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionWithLessThanCondition() {
+    internal fun testPerformActionWithLessThanCondition() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.lessThan(500)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
@@ -114,7 +114,7 @@ internal class OnCheerActionTest {
     }
 
     @Test
-    fun testPerformActionWithLessThanOrEqualToCondition() {
+    internal fun testPerformActionWithLessThanOrEqualToCondition() {
         val onCheerAction = OnCheerAction(CheerAmountCondition.lessThanOrEqual(500)) { _, cheerAmount ->
             textMessage("test", "someone has cheered $cheerAmount bits")
         }
