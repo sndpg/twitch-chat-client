@@ -19,14 +19,29 @@ import reactor.kotlin.core.publisher.toFlux
  * @param webSocketSession the [WebSocketSession] to wrap.
  * @param joinedChannels the currently joined channels.
  */
-sealed class TmiSession(internal val webSocketSession: WebSocketSession, internal val joinedChannels: MutableList<String>) {
+sealed class TmiSession(
+    internal val webSocketSession: WebSocketSession,
+    internal val joinedChannels: MutableList<String>
+) {
     protected val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
-     * Send given [message] to the provided [channel].
+     * Send given [message] to the provided [channels].
+     *
+     * If no [channels] are supplied, the list of [joinedChannels] will instead be used as the receiving channels of
+     * the message.
+     *
+     * @param message the text message to send.
+     * @param channels the channels which should be used as the target of the given message.
      */
-    fun textMessage(channel: String, message: String) {
-        actions.add ( webSocketSession.textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message") )
+    fun textMessage(message: String, vararg channels: String) {
+        actions.addAll(
+            if (channels.isEmpty()) {
+                joinedChannels.map { textMessage(message, it) }
+            } else {
+                channels.map { textMessage(message, it) }
+            }
+        )
     }
 
     /**
@@ -152,5 +167,8 @@ sealed class TmiSession(internal val webSocketSession: WebSocketSession, interna
         actions.clear()
         return asFlux
     }
+
+    private fun textMessage(message: String, channel: String) =
+        webSocketSession.textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message")
 
 }

@@ -70,7 +70,34 @@ When using maven, add the following to the `dependencies` sections of your `pom.
 
 == Usage
 === TmiClient
-TODO
+The `io.github.sykq.tcc.TmiClient` class is part of the core library and facilitates the connection with the Twitch Messaging Interface.
+
+To create a new TmiClient instance use the `tmiClient()` factory method within the `io.github.sykq.tcc` package:
+
+[source,kotlin]
+----
+import io.github.sykq.tcc.TmiClientKt.tmiClient;
+
+fun main() {
+    val tmiClient = tmiClient {
+        username = "myTwitchChatBot"
+        passwordProperty = "TMI_CLIENT_PASSWORD"
+
+        channels += "myChannel"
+        channels += "someOtherChannel"
+
+        onConnect {
+            textMessage("connected")
+        }
+    }
+
+    tmiClient.block { message ->
+
+    }
+}
+----
+
+
 
 === With Spring Boot
 TODO

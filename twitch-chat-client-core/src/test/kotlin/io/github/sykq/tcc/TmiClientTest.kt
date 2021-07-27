@@ -66,7 +66,7 @@ internal class TmiClientTest {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
-                textMessage("sykq", "connected with receive()")
+                textMessage("connected with receive()")
             }
         }
 
@@ -84,7 +84,7 @@ internal class TmiClientTest {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
-                textMessage("sykq", "connected with receive()")
+                textMessage("connected with receive()")
             }
         }
 
@@ -96,7 +96,7 @@ internal class TmiClientTest {
                 }
                 .flatMap {
                     // TODO: the sending/consummation of actions needs a better api for this purpose
-                    session.textMessage("sykq", "test received")
+                    session.textMessage("test received", "sykq")
                     session.webSocketSession.send(session.consumeActions())
                 }
 //                .flatMap {

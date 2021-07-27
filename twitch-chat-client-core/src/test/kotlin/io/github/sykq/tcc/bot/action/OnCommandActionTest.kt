@@ -15,24 +15,24 @@ internal class OnCommandActionTest {
     @Test
     fun testPerformActionOnGivenCommandWithArguments() {
         val onCommandAction = OnCommandAction("!test") { _, command ->
-            textMessage("test", "command received with arguments: [${command.arguments.joinToString(", ")}]")
+            textMessage("command received with arguments: [${command.arguments.joinToString(", ")}]", "test")
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test abc 123"))
 
         verify(session, times(1))
-            .textMessage(eq("test"), eq("command received with arguments: [abc, 123]"))
+            .textMessage(eq("command received with arguments: [abc, 123]"), eq("test"))
     }
 
     @Test
     fun testPerformNoActionBecauseIncomingMessageIsNotARegisteredCommand() {
         val onCommandAction = OnCommandAction("!test") { _, command ->
-            textMessage("test", "command received with arguments: [${command.arguments.joinToString(", ")}]")
+            textMessage("command received with arguments: [${command.arguments.joinToString(", ")}]", "test")
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "test abc 123"))
 
         verify(session, never()).textMessage(anyOrNull(), anyOrNull())
     }
@@ -45,11 +45,11 @@ internal class OnCommandActionTest {
                 allowArguments = false
             )
         ) { _, _ ->
-            textMessage("test", "command without arguments received")
+            textMessage("command without arguments received", "text")
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test abc 123"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test abc 123"))
 
         verify(session, never()).textMessage(anyOrNull(), anyOrNull())
     }
@@ -62,14 +62,14 @@ internal class OnCommandActionTest {
                 allowArguments = false
             )
         ) { _, _ ->
-            textMessage("test", "command without arguments received")
+            textMessage("command without arguments received", "test")
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test"))
 
         verify(session, times(1))
-            .textMessage(eq("test"), eq("command without arguments received"))
+            .textMessage(eq("command without arguments received"), eq("test"))
     }
 
     @Test
@@ -77,15 +77,15 @@ internal class OnCommandActionTest {
         val onCommandAction = OnCommandAction(
             "!Test", OnCommandAction.Options(caseInsensitiveCommand = false)
         ) { _, _ ->
-            textMessage("test", "command without arguments received")
+            textMessage("command without arguments received", "test")
         }
 
         val session = mock(TmiSession::class.java)!!
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!test"))
-        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(),"", "", "!Test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test"))
+        onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!Test"))
 
         verify(session, times(1))
-            .textMessage(eq("test"), eq("command without arguments received"))
+            .textMessage(eq("command without arguments received"), eq("test"))
     }
 
 }
