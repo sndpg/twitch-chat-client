@@ -41,7 +41,12 @@ class BotRegistry(
         }
     }
 
-    fun getBotsByType(type: Class<*>): List<BotBase> = bots.values.filter { it::class.isInstance(type) }
+    /**
+     * Get all Bots which are assignable from the given [type].
+     *
+     * @param type the type of the bots to return.
+     */
+    fun getBotsByType(type: Class<out BotBase>): List<BotBase> = bots.values.filter { it::class.java.isAssignableFrom(type) }
 
     private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient) {
         when (botBase) {
