@@ -41,6 +41,8 @@ class BotRegistry(
         }
     }
 
+    fun getBotsByType(type: Class<*>): List<BotBase> = bots.values.filter { it::class.isInstance(type) }
+
     private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient) {
         when (botBase) {
             is Bot -> tmiClient.block({ session -> botBase.onConnect(session) },
