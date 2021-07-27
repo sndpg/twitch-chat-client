@@ -31,7 +31,7 @@ internal class TmiClientTest {
                 println(it)
 //                println("MESSAGE=${it.text} of type=${it.type} received at ${it.timestamp}")
 //                if (message.text == "!hello") {
-//                    session.textMessage(message.channel, "Hi ${text.user}!")
+//                    textMessage(message.channel, "Hi ${text.user}!")
 //                }
 //                if (it.text  == "!emoteonly"){
 //                    emoteOnly(it.channel)
