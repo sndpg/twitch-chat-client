@@ -117,6 +117,8 @@ By default, the environment variable/system property with key *TMI_CLIENT_PASSWO
 
 The same functionality is present for the `usernameProperty` to read the username from an environment variable or system property. Here, the
 key *TMI_CLIENT_USERNAME* is used as the default key.
+
+These properties are only read if no password or username are explicitly set within the TmiClient's configurer during initialization.
 ====
 
 See https://dev.twitch.tv/docs/irc/guide#connecting-to-twitch-irc[Connecting to Twitch IRC] in the official docs for details on how to use your Twitch account to connect to the TMI.
