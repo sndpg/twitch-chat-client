@@ -1,5 +1,6 @@
 :toc:
-= Twitch Chat Client for Spring Boot
+:icons: font
+= Kotlin Twitch Chat Client for Spring Boot
 
 A purely Kotlin library, providing integration of https://dev.twitch.tv/docs/irc/guide#Twitch_IRC_Capabilities[Twitch IRC capabilities] within JVM based applications (mainly intended for use with Spring Boot) by leveraging https://docs.spring.io/spring-integration/reference/html/web-sockets.html[Spring's WebSocket Support].
 
@@ -76,32 +77,56 @@ To create a new TmiClient instance use the `tmiClient()` factory method within t
 
 [source,kotlin]
 ----
-import io.github.sykq.tcc.TmiClientKt.tmiClient;
+import io.github.sykq.tcc.tmiClient;
 
 fun main() {
     val tmiClient = tmiClient {
+        // configure your instance
         username = "myTwitchChatBot"
-        passwordProperty = "TMI_CLIENT_PASSWORD"
+        passwordProperty = "TMI_CLIENT_PASSWORD" <1>
 
+        // define the channels to join
         channels += "myChannel"
         channels += "someOtherChannel"
 
         onConnect {
-            textMessage("connected")
+            join("yetAnotherChannel") <2>
+            textMessage("connected") <3>
         }
     }
 
     tmiClient.block { message ->
+        // specify what should happen upon receiving a message
         if (message.text == "!hello") {
             textMessage("Hi ${message.user}")
         }
     }
 }
 ----
+<1> the passwordProperty can be set to the name of an environment variable of system property whose value will be used as the password for connecting to the TMI
+<2> optionally join another channel upon connecting
+<3> set an optional `onConnect` action, which will send the text "connected" to all joined channels
 
+To connect to the Twitch Messaging Interface (TMI) through the `TmiClient` you need to provide your Twitch username (login name) in lowercase as the `username` and an associated OAuth token as the `password`. Such a token can be generated with the help of the https://twitchapps.com/tmi/[Twitch Chat Password Generator].
 
+[TIP]
+====
+Instead of directly setting the password through the `password` property, the `TmiClient` supports reading an according value from an environment variable or system property with the name of the given by the `passwordProperty`.
+
+By default, the environment variable/system property with key *TMI_CLIENT_PASSWORD* is used to retrieve the password.
+
+The same functionality is present for the `usernameProperty` to read the username from an environment variable or system property. Here, the
+key *TMI_CLIENT_USERNAME* is used as the default key.
+
+These properties are only read if no password or username are explicitly set within the TmiClient's configurer during initialization.
+====
+
+See https://dev.twitch.tv/docs/irc/guide#connecting-to-twitch-irc[Connecting to Twitch IRC] in the official docs for details on how to use your Twitch account to connect to the TMI.
 
 === With Spring Boot
+Adding the spring-boot-starter listed in <<Spring Boot>> to your Spring Boot project will pull in a AutoConfiguration which adds a `BotRegistry`-Bean to the ApplicationContext and provide the additional `BotBase`, `Bot` and `ReactiveBot` interfaces which serve as an additional layer above the TmiClient, allowing for implementations to hold bot-specific state.
+
+==== BotRegistry
 TODO
 
 ==== BotBase/Bot/ReactiveBot

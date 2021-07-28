@@ -117,7 +117,6 @@ sealed interface BotBase {
             onConnect = doOnConnect
         }
 
-
         /**
          * Provide the actions to execute before a Bot is "killed".
          *
