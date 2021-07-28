@@ -14,14 +14,16 @@ internal class TmiClientTest {
 //    @Disabled
     fun test() {
         val tmiClient = tmiClient {
-//            channels += "sykq"
+            channels += "sykq"
+            channels += "plus_two_bot"
 //            channels += "codemiko"
-            channels += "sunglitters"
+//            channels += "sunglitters"
 //            channels += "harrie"
 //            channels += "dumbdog"
             onConnect {
                 LOG.warn("connected!!!!!")
                 tagCapabilities()
+                textMessage("connected")
 //                textMessage(joinedChannels[0], "connected")
 //                clearChat("sykq")
 //                textMessage("sykq", "Hi test")

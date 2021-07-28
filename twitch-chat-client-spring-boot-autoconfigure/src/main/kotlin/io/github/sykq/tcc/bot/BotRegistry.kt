@@ -74,9 +74,6 @@ class BotRegistry(
             return bot.tmiClient!!
         }
 
-        // maybe we should also check for already existing TmiClient (beans) and use the if their connection params are
-        // the same as the currently required ones? Is this even possible with the current visibility of TmiClient's
-        // members?
         return connectionParametersProviders.getConnectionParametersProvider(bot.name).let {
             val connectionParameters = it.getConnectionParameters()
             tmiClient {
