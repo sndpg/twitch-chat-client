@@ -40,8 +40,6 @@ internal class TmiAutoconfigurationTest {
                 "tmi.bots[1].passwordProperty=PASSWORD_PROPERTY",
             )
             .run {
-                assertThat(it).getBeans(TmiClient::class.java).hasSize(3)
-
                 val tmiProperties = it.getBean(TmiProperties::class.java)
                 assertThat(tmiProperties.bots[0])
                     .matches { bot ->
