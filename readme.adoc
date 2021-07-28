@@ -164,10 +164,11 @@ TODO
 
 TODO
 
-== Sample project
+== Spring Boot Service sample project for
 
-TODO: Link to repo
+A sample project consisting of a Spring Boot web service application which uses the features of this library can be found at https://github.com/sykq/twitch-chat-bot-service
 
+== Building
 [IMPORTANT]
 ====
 Builds with JDK 16+ won't succeed since kapt uses some internal API which is no longer accessible in those builds. +
