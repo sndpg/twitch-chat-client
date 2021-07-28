@@ -77,7 +77,7 @@ To create a new TmiClient instance use the `tmiClient()` factory method within t
 
 [source,kotlin]
 ----
-import io.github.sykq.tcc.TmiClientKt.tmiClient;
+import io.github.sykq.tcc.tmiClient;
 
 fun main() {
     val tmiClient = tmiClient {
