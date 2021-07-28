@@ -144,6 +144,16 @@ Adding the spring-boot-starter listed in <<Spring Boot>> to your Spring Boot pro
 The TMI-Server will send a `PING` message once about every five minutes.
 To ensure that the connection is not terminated, the TmiClient will automatically reply to all such messages with a `PONG`.
 
+=== TmiSession
+
+=== TmiMessage
+
+=== OnCommandAction
+
+=== OnCheerAction
+
+==== CheerAmountCondition
+
 === Connecting with multiple accounts (Spring Boot)
 TODO
 
