@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
-    `maven-publish` apply false
+    `maven-publish`
     kotlin("jvm")
     jacoco
 }
@@ -39,27 +39,6 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
-        }
-    }
-}
-
-subprojects {
-    apply(plugin = "maven-publish")
-    configure<PublishingExtension> {
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/sykq/twitch-chat-client")
-                credentials {
-                    username = System.getProperty("username")
-                    password = System.getProperty("token")
-                }
-            }
-        }
-        publications {
-            register<MavenPublication>("gpr") {
-                from(components["java"])
-            }
         }
     }
 }

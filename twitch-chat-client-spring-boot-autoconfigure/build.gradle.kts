@@ -14,3 +14,22 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-test")
 }
+
+
+publishing {
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/sykq/twitch-chat-client")
+            credentials {
+                username = System.getProperty("username")
+                password = System.getProperty("token")
+            }
+        }
+    }
+}
