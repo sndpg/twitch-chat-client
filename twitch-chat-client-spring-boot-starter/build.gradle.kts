@@ -17,8 +17,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/sykq/twitch-chat-client")
             credentials {
-                username = System.getProperty("username")
-                password = System.getProperty("token")
+                username = System.getenv("USERNAME")
+                password = System.getenv("TOKEN")
             }
         }
     }
