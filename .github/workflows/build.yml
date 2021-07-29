@@ -16,12 +16,12 @@ jobs:
         java-version: 11
     - uses: eskatos/gradle-command-action@v1
       with:
-        arguments: build    
+        arguments: publish    
         gradle-version: 7.1.1
-    - uses: actions/upload-artifact@v2
-      with:
-        name: build-artifact
-        path: | 
-          **/build/libs/*-javadoc.jar
-          **/build/libs/*-sources.jar
-          **/build/libs/*.jar
+#    - uses: actions/upload-artifact@v2
+#      with:
+#       name: build-artifact
+#       path: | 
+#         **/build/libs/*-javadoc.jar
+#         **/build/libs/*-sources.jar
+#         **/build/libs/*.jar
