@@ -14,21 +14,3 @@ dependencies {
 
     testImplementation("io.projectreactor:reactor-test")
 }
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sykq/twitch-chat-client")
-            credentials {
-                username = System.getProperty("username")
-                password = System.getProperty("token")
-            }
-        }
-    }
-    publications {
-        register<MavenPublication>("gpr") {
-            from(components["java"])
-        }
-    }
-}
