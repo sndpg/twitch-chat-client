@@ -19,7 +19,8 @@ jobs:
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
         USERNAME: sykq
       with:
-        arguments: publish
+#        arguments: publish
+        arguments: publishGprPublicationToGitHubPackagesRepository
         gradle-version: 7.1.1
 #    - uses: actions/upload-artifact@v2
 #      with:
