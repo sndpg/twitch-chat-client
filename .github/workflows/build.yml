@@ -16,7 +16,7 @@ jobs:
         java-version: 11
     - uses: eskatos/gradle-command-action@v1
       with:
-        arguments: publish -Dtoken=${{ secrets.GITHUB_TOKEN }} -Dusername=${{ secrets.USERNAME }}
+        arguments: publish -Dtoken=${{ secrets.GITHUB_TOKEN }} -Dusername=sykq
         gradle-version: 7.1.1
 #    - uses: actions/upload-artifact@v2
 #      with:
