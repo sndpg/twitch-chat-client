@@ -1,5 +1,6 @@
 plugins {
     id("kotlin-conventions")
+    `maven-publish`
 }
 
 val coroutinesVersion = "1.5.1"
@@ -12,4 +13,22 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
 
     testImplementation("io.projectreactor:reactor-test")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/sykq/twitch-chat-client")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
+        }
+    }
 }
