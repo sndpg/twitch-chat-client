@@ -8,7 +8,9 @@ A purely Kotlin library, providing integration of https://dev.twitch.tv/docs/irc
 
 === Repositories
 
-TODO
+The project artifacts are currently only available through https://github.com/sykq?tab=packages&repo_name=twitch-chat-client[GitHub Packages].
+
+To use them within your own project, see the corresponding documentation https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#installing-a-package[Installing a Gradle package].
 
 === Core
 
