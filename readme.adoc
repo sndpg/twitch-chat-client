@@ -78,6 +78,13 @@ When using maven, add the following to the `dependencies` sections of your `pom.
 
 == Usage
 
+[TIP]
+====
+This project's API makes extensive use of Kotlin's https://kotlinlang.org/docs/lambdas.html#function-literals-with-receiver[function literals with receiver] feature. 
+
+Make sure you're familiar with it to effectively use this library.
+====
+
 === TmiClient
 
 The `io.github.sykq.tcc.TmiClient` class is part of the core library and facilitates the connection with the Twitch Messaging Interface.
@@ -207,7 +214,7 @@ TODO
 
 TODO
 
-== Spring Boot Service sample project for
+== Spring Boot service sample project
 
 A sample project consisting of a Spring Boot web service application which uses the features of this library can be found at https://github.com/sykq/twitch-chat-bot-service
 
