@@ -172,7 +172,7 @@ TODO
 
 TODO
 
-== Spring Boot Service sample project
+== Spring Boot service sample project
 
 A sample project consisting of a Spring Boot web service application which uses the features of this library can be found at https://github.com/sykq/twitch-chat-bot-service
 
