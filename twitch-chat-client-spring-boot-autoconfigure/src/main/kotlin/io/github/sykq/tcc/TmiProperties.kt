@@ -7,7 +7,16 @@ const val TMI_CONFIGURATION_PROPERTIES_PREFIX = "tmi"
 
 @ConstructorBinding
 @ConfigurationProperties(TMI_CONFIGURATION_PROPERTIES_PREFIX)
-data class TmiProperties(val bot: Bot?, val bots: List<Bot> = listOf()) {
+data class TmiProperties(
+    val bot: Bot?,
+    val bots: List<Bot> = listOf(),
+
+    /**
+     * Whether [TmiClient]-Beans should automatically connect to the TMI when the application is started.
+     */
+    val connectTmiClientsEnabled: Boolean? = true
+) {
+
 
     data class Bot(
 

@@ -34,8 +34,21 @@ class TmiAutoconfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(TmiClient::class)
+    @ConditionalOnProperty(
+        prefix = TMI_CONFIGURATION_PROPERTIES_PREFIX,
+        value = ["connect-tmi-clients-enabled"],
+        matchIfMissing = true
+    )
+    fun tmiClientConnector(tmiClients: List<TmiClient>): TmiClientConnector =
+        TmiClientConnector(tmiClients)
+
+    @Bean
     @ConditionalOnBean(BotBase::class)
-    fun botRegistry(bots: List<BotBase>, connectionParametersProviders: List<ConnectionParametersProvider>): BotRegistry =
+    fun botRegistry(
+        bots: List<BotBase>,
+        connectionParametersProviders: List<ConnectionParametersProvider>
+    ): BotRegistry =
         BotRegistry(bots, connectionParametersProviders)
 
     class BotPropertiesProvidedCondition : SpringBootCondition() {
