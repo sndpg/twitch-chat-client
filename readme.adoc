@@ -146,6 +146,12 @@ Adding the spring-boot-starter listed in <<Spring Boot>> to your Spring Boot pro
 The TMI-Server will send a `PING` message once about every five minutes.
 To ensure that the connection is not terminated, the TmiClient will automatically reply to all such messages with a `PONG`.
 
+==== Sink for messages from sources independent of incoming messages
+
+The TmiClient's `messageSink` allows writing of text messages to joined channels, which aren't created as a response to an incoming message, but rather come from an independent source (e.g. some user interaction).
+
+Therefore, it should be possible to implement an interactive chat client based on a TmiClient.
+
 === TmiSession
 
 === TmiMessage
