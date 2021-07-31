@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 internal class TmiMessageTest {
 
     @Test
-    fun `should not be creatable due to badly formed payloadAsText`() {
+    fun `should not be creatable due to badly formatted payloadAsText`() {
         val payloadAsText = "justSomeText"
         assertThat(TmiMessage.canBeCreatedFromPayloadAsText(payloadAsText)).isFalse
     }
