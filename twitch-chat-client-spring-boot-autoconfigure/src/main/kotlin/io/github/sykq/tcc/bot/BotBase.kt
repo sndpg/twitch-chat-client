@@ -24,7 +24,9 @@ sealed interface BotBase {
         get() = null
 
     /**
-     * Automatically connect after starting
+     * Automatically connect after starting.
+     *
+     * Defaults to `true`.
      */
     val autoConnect: Boolean
         get() = true
