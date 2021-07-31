@@ -4,6 +4,8 @@ import io.github.sykq.tcc.ConnectionParametersProvider
 import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.tmiClient
 import mu.KotlinLogging
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import kotlin.concurrent.thread
 
 private val LOG = KotlinLogging.logger {}
@@ -18,43 +20,37 @@ class BotRegistry(
         get() = bots.keys.toList()
 
     init {
-        bots.filter {
-            it.autoConnect
-        }.forEach { connect(it.name) }
+        bots.filter { it.autoConnect }
+            .mergeAndConnect()
     }
 
-    fun connect(botName: String) {
-        thread {
-            bots[botName]?.let {
-                val tmiClient = tmiClients[it.name]!!
-                prepareTmiClientInvocation(it, tmiClient)
-            } ?: LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
+    fun connect(botName: String): Mono<Void> {
+        return bots[botName]?.let {
+            val tmiClient = tmiClients[it.name]!!
+            prepareTmiClientInvocation(it, tmiClient)
+        } ?: Mono.empty<Void?>().also {
+            LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
         }
+
     }
 
-    fun connectAll() {
-        bots.forEach {
-            val tmiClient = tmiClients[it.key]!!
-            thread {
-                prepareTmiClientInvocation(it.value, tmiClient)
-            }
-        }
-    }
+    fun connectAll() = bots.values.mergeAndConnect()
 
     /**
      * Get all Bots which are assignable from the given [type].
      *
      * @param type the type of the bots to return.
      */
-    fun getBotsByType(type: Class<out BotBase>): List<BotBase> = bots.values.filter { it::class.java.isAssignableFrom(type) }
+    fun getBotsByType(type: Class<out BotBase>): List<BotBase> =
+        bots.values.filter { it::class.java.isAssignableFrom(type) }
 
-    private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient) {
+    private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient): Mono<Void> =
         when (botBase) {
-            is Bot -> tmiClient.block({ session -> botBase.onConnect(session) },
-                { message -> botBase.onMessage(this, message) })
+            is Bot -> tmiClient
+                .connect({ session -> botBase.onConnect(session) },
+                    { message -> botBase.onMessage(this, message) })
             is ReactiveBot -> botBase.receive(tmiClient)
         }
-    }
 
     private fun resolveTmiClients(
         bots: List<BotBase>,
@@ -90,5 +86,14 @@ class BotRegistry(
                     "Either define a bean of such type for the given bot or set according tmi prefixed properties."
         )
     }
+
+    private fun Collection<BotBase>.mergeAndConnect() =
+        map { connect(it.name) }
+            .also {
+                thread {
+                    Flux.merge(it)
+                        .blockLast()
+                }
+            }
 
 }
