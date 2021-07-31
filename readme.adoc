@@ -169,6 +169,8 @@ import kotlin.concurrent.thread
 
 fun main() {
     val sink = Sinks.many().unicast().onBackpressureBuffer<String>()
+    sink.tryEmitNext("hello")
+    sink.tryEmitNext("hello again")
 
     val tmiClient = tmiClient {
         // configure your instance
@@ -186,10 +188,6 @@ fun main() {
             println(message.text)
         }
     }
-
-    Thread.sleep(3000L)
-    sink.tryEmitNext("hello")
-    sink.tryEmitNext("hello again")
 
 }
 ----
