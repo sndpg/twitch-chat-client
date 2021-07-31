@@ -37,8 +37,8 @@ fun tmiClient(configure: TmiClient.Configurer.() -> Unit): TmiClient {
  * @param configurer configuration that will be applied at instance creation
  */
 class TmiClient internal constructor(configurer: Configurer) {
-    private val username: String = resolveProperty(TMI_CLIENT_USERNAME_KEY, configurer.username)
-    private val password: String = resolveProperty(TMI_CLIENT_PASSWORD_KEY, configurer.password)
+    private val username: String = resolveProperty(configurer.usernameProperty, configurer.username)
+    private val password: String = resolveProperty(configurer.passwordProperty, configurer.password)
     private val url: String = configurer.url
 
     private val channels: MutableList<String> = configurer.channels
@@ -269,7 +269,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     /**
      * Configurer for a [TmiClient].
      *
-     * An instance of this object can be provided as an constructor argument for a TmiClient to be created.
+     * An instance of this object can be provided as a constructor argument for a TmiClient to be created.
      */
     class Configurer {
 
@@ -279,9 +279,21 @@ class TmiClient internal constructor(configurer: Configurer) {
         var username: String? = null
 
         /**
+         * The key of the environment variable or system property whose value should be used as the username for
+         * connecting to the TMI.
+         */
+        var usernameProperty: String = TMI_CLIENT_USERNAME_KEY
+
+        /**
          *  The oauth-token used for authentication and authorization of the bot/user.
          */
         var password: String? = null
+
+        /**
+         * The key of the environment variable or system property whose value should be used as the password for
+         * connecting to the TMI.
+         */
+        var passwordProperty: String = TMI_CLIENT_PASSWORD_KEY
 
         /**
          *  The url of the twitch chat server.
