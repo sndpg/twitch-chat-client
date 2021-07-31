@@ -24,15 +24,13 @@ class BotRegistry(
             .mergeAndConnect()
     }
 
-    fun connect(botName: String): Mono<Void> {
-        return bots[botName]?.let {
+    fun connect(botName: String): Mono<Void> =
+        bots[botName]?.let {
             val tmiClient = tmiClients[it.name]!!
             prepareTmiClientInvocation(it, tmiClient)
-        } ?: Mono.empty<Void?>().also {
+        } ?: Mono.empty<Void>().also {
             LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
         }
-
-    }
 
     fun connectAll() = bots.values.mergeAndConnect()
 

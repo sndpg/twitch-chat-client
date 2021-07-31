@@ -1,25 +1,29 @@
 package io.github.sykq.tcc
 
 import mu.KotlinLogging
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Sinks
 
 private val LOG = KotlinLogging.logger {}
 
-@Disabled
+//@Disabled
 internal class TmiClientTest {
 
     @Test
 //    @Disabled
     fun test() {
+        val messageSink = Sinks.many().multicast().directBestEffort<String>()
+
         val tmiClient = tmiClient {
             channels += "sykq"
-            channels += "plus_two_bot"
+//            channels += "plus_two_bot"
+//            channels += "northernlion"
 //            channels += "codemiko"
 //            channels += "sunglitters"
 //            channels += "harrie"
 //            channels += "dumbdog"
+            this.messageSink = messageSink
             onConnect {
                 LOG.warn("connected!!!!!")
                 tagCapabilities()
@@ -31,6 +35,7 @@ internal class TmiClientTest {
             }
             onMessage {
                 println(it)
+                messageSink.tryEmitNext("test123")
 //                println("MESSAGE=${it.text} of type=${it.type} received at ${it.timestamp}")
 //                if (message.text == "!hello") {
 //                    textMessage(message.channel, "Hi ${text.user}!")
@@ -44,6 +49,7 @@ internal class TmiClientTest {
             }
         }
         tmiClient.block()
+
     }
 
     @Test

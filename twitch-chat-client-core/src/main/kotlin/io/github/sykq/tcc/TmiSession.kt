@@ -37,9 +37,9 @@ sealed class TmiSession(
     fun textMessage(message: String, vararg channels: String) {
         actions.addAll(
             if (channels.isEmpty()) {
-                joinedChannels.map { textMessage(message, it) }
+                joinedChannels.map { webSocketSession.tmiTextMessage(message, it) }
             } else {
-                channels.map { textMessage(message, it) }
+                channels.map { webSocketSession.tmiTextMessage(message, it) }
             }
         )
     }
@@ -73,8 +73,8 @@ sealed class TmiSession(
      *
      * This command will clear the chat if the initiating user owns the required privileges to do so.
      */
-    fun clearChat(channel: String) {
-        textMessage(channel, "/clear")
+    fun clearChat(channel: String = joinedChannels[0]) {
+        textMessage("/clear", channel)
     }
 
     /**
@@ -82,8 +82,8 @@ sealed class TmiSession(
      *
      * This will activate emote only mode if the initiating user owns the required privileges to do so.
      */
-    fun emoteOnly(channel: String) {
-        textMessage(channel, "/emoteonly")
+    fun emoteOnly(channel: String = joinedChannels[0]) {
+        textMessage("/emoteonly", channel)
     }
 
     /**
@@ -91,8 +91,8 @@ sealed class TmiSession(
      *
      * This will deactivate emote only mode if the initiating user owns the required privileges to do so.
      */
-    fun emoteOnlyOff(channel: String) {
-        textMessage(channel, "/emoteonlyoff")
+    fun emoteOnlyOff(channel: String = joinedChannels[0]) {
+        textMessage("/emoteonlyoff", channel)
     }
 
     /**
@@ -100,8 +100,8 @@ sealed class TmiSession(
      *
      * This will activate follower only mode if the initiating user owns the required privileges to do so.
      */
-    fun followersOnly(channel: String) {
-        textMessage(channel, "/followers")
+    fun followersOnly(channel: String = joinedChannels[0]) {
+        textMessage("/followers", channel)
     }
 
     /**
@@ -109,8 +109,8 @@ sealed class TmiSession(
      *
      * This will deactivate follower only mode if the initiating user owns the required privileges to do so.
      */
-    fun followersOnlyOff(channel: String) {
-        textMessage(channel, "/followersoff")
+    fun followersOnlyOff(channel: String = joinedChannels[0]) {
+        textMessage("/followersoff", channel)
     }
 
     /**
@@ -118,8 +118,8 @@ sealed class TmiSession(
      *
      * This will active slow mode if the initiating user owns the required privileges to do so.
      */
-    fun slow(channel: String) {
-        textMessage(channel, "/slow")
+    fun slow(channel: String = joinedChannels[0]) {
+        textMessage("/slow", channel)
     }
 
     /**
@@ -127,8 +127,8 @@ sealed class TmiSession(
      *
      * This will deactivate slow mode if the initiating user owns the required privileges to do so.
      */
-    fun slowOff(channel: String) {
-        textMessage(channel, "/slowoff")
+    fun slowOff(channel: String = joinedChannels[0]) {
+        textMessage("/slowoff", channel)
     }
 
     /**
@@ -136,8 +136,8 @@ sealed class TmiSession(
      *
      * This will activate subscriber only mode if the initiating user owns the required privileges to do so.
      */
-    fun subscribers(channel: String) {
-        textMessage(channel, "/subscribers")
+    fun subscribers(channel: String = joinedChannels[0]) {
+        textMessage("/subscribers", channel)
     }
 
     /**
@@ -145,8 +145,8 @@ sealed class TmiSession(
      *
      * This will deactivate subscriber only mode if the initiating user owns the required privileges to do so.
      */
-    fun subscribersOff(channel: String) {
-        textMessage(channel, "/subscribersoff")
+    fun subscribersOff(channel: String = joinedChannels[0]) {
+        textMessage("/subscribersoff", channel)
     }
 
     /**
@@ -154,8 +154,8 @@ sealed class TmiSession(
      *
      * Add a stream marker at the current timestamp with a specified description.
      */
-    fun marker(channel: String, description: String) {
-        textMessage(channel, "/marker $description")
+    fun marker(description: String, channel: String = joinedChannels[0]) {
+        textMessage("/marker $description", channel)
     }
 
     /**
@@ -167,8 +167,5 @@ sealed class TmiSession(
         actions.clear()
         return asFlux
     }
-
-    private fun textMessage(message: String, channel: String) =
-        webSocketSession.textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message")
 
 }

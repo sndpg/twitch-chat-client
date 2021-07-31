@@ -77,6 +77,11 @@ sealed interface BotBase {
          */
         var channels: MutableList<String> = mutableListOf()
 
+        /**
+         * Whether to filter messages sent from the user of this TmiClient when processing incoming messages.
+         */
+        var filterUserMessages = false
+
         var tmiClient: TmiClient? = null
             get() {
                 if (field == null) {
@@ -84,6 +89,7 @@ sealed interface BotBase {
                         username = this@Configurer.username
                         password = this@Configurer.password
                         channels = this@Configurer.channels
+                        filterUserMessages = this@Configurer.filterUserMessages
                     }
                 }
                 return field
