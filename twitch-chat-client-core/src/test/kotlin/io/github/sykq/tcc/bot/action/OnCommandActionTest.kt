@@ -14,7 +14,7 @@ internal class OnCommandActionTest {
 
     @Test
     fun testPerformActionOnGivenCommandWithArguments() {
-        val onCommandAction = OnCommandAction("!test") { _, command ->
+        val onCommandAction = OnCommandAction("!test") { (_, command) ->
             textMessage("command received with arguments: [${command.arguments.joinToString(", ")}]", "test")
         }
 
@@ -27,7 +27,7 @@ internal class OnCommandActionTest {
 
     @Test
     fun testPerformNoActionBecauseIncomingMessageIsNotARegisteredCommand() {
-        val onCommandAction = OnCommandAction("!test") { _, command ->
+        val onCommandAction = OnCommandAction("!test") { (_, command) ->
             textMessage("command received with arguments: [${command.arguments.joinToString(", ")}]", "test")
         }
 
@@ -44,9 +44,7 @@ internal class OnCommandActionTest {
                 caseInsensitiveCommand = true,
                 allowArguments = false
             )
-        ) { _, _ ->
-            textMessage("command without arguments received", "text")
-        }
+        ) { textMessage("command without arguments received", "text") }
 
         val session = mock(TmiSession::class.java)!!
         onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test abc 123"))
@@ -61,9 +59,7 @@ internal class OnCommandActionTest {
                 caseInsensitiveCommand = true,
                 allowArguments = false
             )
-        ) { _, _ ->
-            textMessage("command without arguments received", "test")
-        }
+        ) { textMessage("command without arguments received", "test") }
 
         val session = mock(TmiSession::class.java)!!
         onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test"))
@@ -76,9 +72,7 @@ internal class OnCommandActionTest {
     fun testPerformCaseSensitiveAction() {
         val onCommandAction = OnCommandAction(
             "!Test", OnCommandAction.Options(caseInsensitiveCommand = false)
-        ) { _, _ ->
-            textMessage("command without arguments received", "test")
-        }
+        ) { textMessage("command without arguments received", "test") }
 
         val session = mock(TmiSession::class.java)!!
         onCommandAction.invoke(session, TmiMessage(ZonedDateTime.now(), "", "", "!test"))

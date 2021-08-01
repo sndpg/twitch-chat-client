@@ -22,7 +22,7 @@ import io.github.sykq.tcc.action.OnCommandAction.Options
 class OnCommandAction(
     private val command: String,
     private val options: Options = Options(),
-    private val action: TmiSession.(TmiMessage, Command) -> Unit
+    private val action: TmiSession.(MessageContext) -> Unit
 ) : (TmiSession, TmiMessage) -> Unit {
 
     override fun invoke(session: TmiSession, message: TmiMessage) {
@@ -32,9 +32,9 @@ class OnCommandAction(
             return
         }
 
-        if ((options.caseInsensitiveCommand && command == messageStart.lowercase()) || command == messageStart) {
+        if ((options.caseInsensitiveCommand && command.lowercase() == messageStart.lowercase()) || command == messageStart) {
             val parsedCommand = parseCommand(messageStart, message)
-            action(session, message, parsedCommand)
+            action(session, MessageContext(message, parsedCommand))
         }
     }
 

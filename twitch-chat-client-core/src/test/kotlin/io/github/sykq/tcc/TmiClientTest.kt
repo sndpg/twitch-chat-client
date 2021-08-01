@@ -1,14 +1,13 @@
 package io.github.sykq.tcc
 
 import mu.KotlinLogging
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 
 private val LOG = KotlinLogging.logger {}
 
-@Disabled
+//@Disabled
 internal class TmiClientTest {
 
     @Test
@@ -94,7 +93,7 @@ internal class TmiClientTest {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
-                textMessage("connected with receive()")
+                textMessage("connected with receiveWithSession()")
             }
         }
 
@@ -102,19 +101,18 @@ internal class TmiClientTest {
             messageFlux.filter { it.text == "test" }
                 .doOnNext {
                     println("$it received")
-
                 }
-                .flatMap {
+                .doOnNext {
                     // TODO: the sending/consummation of actions needs a better api for this purpose
                     session.textMessage("test received", "sykq")
-                    session.webSocketSession.send(session.consumeActions())
+//                    session.webSocketSession.send(session.consumeActions())
                 }
 //                .flatMap {
 //                    session.webSocketSession.send(
 //                        session.webSocketSession.textMessage("PRIVMSG #sykq :test received").toMono()
 //                    )
 //                }
-                .then()
+//                .then()
         }.block()
     }
 }

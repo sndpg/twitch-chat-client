@@ -87,8 +87,8 @@ class TmiClient internal constructor(configurer: Configurer) {
      * [onMessage] function.
      *
      * @param onConnect the actions to execute upon connecting to the TMI.
-     * @param onMessage function to process the Flux returned from [WebSocketSession.receive]. The emitted by the flux
-     * are mapped to [TmiMessage] before being handed over to the onMessage function
+     * @param onMessage function to process the Flux returned from [WebSocketSession.receive]. The items emitted by the
+     * flux are mapped to [TmiMessage]s before being handed over to the onMessage function
      */
     fun receive(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
@@ -110,13 +110,18 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     fun receiveWithSession(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (TmiSession, Flux<TmiMessage>) -> Mono<Void> = { _, messageFlux -> messageFlux.then() }
+        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<TmiMessage> = { _, messageFlux -> messageFlux }
     ): Mono<Void> = client.execute(URI.create(url)) {
+        // TODO: find a better way of sending the queued actions (within TmiSession)
+        val tmiSession = DefaultTmiSession(it, channels)
         it.connectAndJoinInitialChannels()
             .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
             .thenMany(
                 Flux.merge(
-                    onMessage(DefaultTmiSession(it, channels), it.handleIncomingMessages()),
+                    onMessage(tmiSession, it.handleIncomingMessages())
+                        .filter { tmiSession.hasActions() }
+                        .flatMap { _ -> it.send(tmiSession.consumeActions()) }
+                        .then(),
                     it.pushToSink()
                 )
             )
@@ -198,7 +203,7 @@ class TmiClient internal constructor(configurer: Configurer) {
         onMessage: (WebSocketSession, WebSocketMessage) -> Publisher<Void> = { _, _ -> Mono.empty() }
     ): Unit = connectWithPublisher(onConnect, onMessage).blockWithRetry()
 
-    private fun WebSocketSession.connectAndJoinInitialChannels() : Flux<Void> = send(startConnect())
+    private fun WebSocketSession.connectAndJoinInitialChannels(): Flux<Void> = send(startConnect())
         .doOnError { throw IllegalStateException("could not connect with TMI using username $username. Check credentials") }
         .thenMany(joinInitialChannels())
 

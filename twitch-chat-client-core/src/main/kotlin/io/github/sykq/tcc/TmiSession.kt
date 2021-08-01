@@ -171,4 +171,6 @@ sealed class TmiSession(
         return asFlux
     }
 
+    internal fun hasActions(): Boolean = actions.isNotEmpty()
+
 }
