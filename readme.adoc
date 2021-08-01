@@ -213,12 +213,13 @@ import io.github.sykq.tcc.tmiClient
             // configure your instance
             // ... (omitted for brevity)
             onConnect {
-                tagCapabilities()
+                tagCapabilities() <1>
             }
         }
         // ...
     }
 ----
+<1> activate tag capabilities
 ====
 
 Instances are implicitly provided by a TmiClient when using one of the according methods to establish a connection, e.g. `connect()`, `receiveWithSession()` or `block()`.
