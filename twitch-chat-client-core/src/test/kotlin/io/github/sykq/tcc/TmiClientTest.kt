@@ -1,13 +1,14 @@
 package io.github.sykq.tcc
 
 import mu.KotlinLogging
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 
 private val LOG = KotlinLogging.logger {}
 
-//@Disabled
+@Disabled
 internal class TmiClientTest {
 
     @Test
