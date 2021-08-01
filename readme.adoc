@@ -80,7 +80,7 @@ When using maven, add the following to the `dependencies` sections of your `pom.
 
 [TIP]
 ====
-This project's API makes extensive use of Kotlin's https://kotlinlang.org/docs/lambdas.html#function-literals-with-receiver[function literals with receiver] feature. 
+This project's API uses Kotlin's https://kotlinlang.org/docs/lambdas.html#function-literals-with-receiver[function literals with receiver] feature in several places.
 
 Make sure you're familiar with it to effectively use this library.
 ====
