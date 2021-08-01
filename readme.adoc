@@ -165,10 +165,9 @@ Therefore, it should be possible to implement an interactive chat client on top 
 package io.github.sykq.tcc
 
 import reactor.core.publisher.Sinks
-import kotlin.concurrent.thread
 
 fun main() {
-    val sink = Sinks.many().unicast().onBackpressureBuffer<String>()
+    val sink = Sinks.many().unicast().onBackpressureBuffer<String>() <1>
     sink.tryEmitNext("hello")
     sink.tryEmitNext("hello again")
 
@@ -183,14 +182,13 @@ fun main() {
         messageSink = sink
     }
 
-    thread {
-        tmiClient.block { message ->
-            println(message.text)
-        }
+    tmiClient.block { message ->
+        println(message.text)
     }
 
 }
 ----
+<1> `onBackpressureBuffer()` replays all emissions pushed to this sink while no subscriber is registered, to the first (and only, since `unicast()` is used) subscriber. This allows us in this demo to push to the sink before the TmiClient establishes a connection to the TMI.
 
 === TmiSession
 
