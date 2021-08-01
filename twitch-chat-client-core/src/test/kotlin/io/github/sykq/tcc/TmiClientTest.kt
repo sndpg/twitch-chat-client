@@ -13,7 +13,7 @@ internal class TmiClientTest {
     @Test
 //    @Disabled
     fun test() {
-        val messageSink = Sinks.many().multicast().directBestEffort<String>()
+        val messageSink = Sinks.many().unicast().onBackpressureBuffer<String>()
 
         val tmiClient = tmiClient {
             channels += "sykq"
@@ -36,6 +36,7 @@ internal class TmiClientTest {
             onMessage {
                 println(it)
                 messageSink.tryEmitNext("test123")
+                messageSink.tryEmitNext("test124")
 //                println("MESSAGE=${it.text} of type=${it.type} received at ${it.timestamp}")
 //                if (message.text == "!hello") {
 //                    textMessage(message.channel, "Hi ${text.user}!")

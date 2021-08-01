@@ -93,7 +93,7 @@ To create a new TmiClient instance use the `tmiClient()` factory method within t
 
 [source,kotlin]
 ----
-import io.github.sykq.tcc.tmiClient;
+import io.github.sykq.tcc.tmiClient
 
 fun main() {
     val tmiClient = tmiClient {
@@ -162,8 +162,6 @@ Therefore, it should be possible to implement an interactive chat client on top 
 [source,kotlin]
 .Example for a TmiClient with a message sink
 ----
-package io.github.sykq.tcc
-
 import reactor.core.publisher.Sinks
 
 fun main() {
@@ -188,11 +186,80 @@ fun main() {
 
 }
 ----
-<1> `onBackpressureBuffer()` replays all emissions pushed to this sink while no subscriber is registered, to the first (and only, since `unicast()` is used) subscriber. This allows us in this demo to push to the sink before the TmiClient establishes a connection to the TMI.
+<1> `onBackpressureBuffer()` replays all emissions pushed to this sink while no subscriber is registered, to the first (and only, since `unicast()` is used) subscriber.
+This allows us in this demo to push to the sink before the TmiClient establishes a connection to the TMI.
 
 === TmiSession
 
+The `io.github.sykq.tcc.TmiSession` class is a wrapper over Spring's `WebSocketSession` and provides methods specifically tailored for interacting with the TMI as well as the list of currently joined channels as the member variable `joinedChannels`.
+
+This class (and its subclass `ConfigurableTmiSession`) is part of the signature of most of ``TmiClient``'s `onConnect()` and `onMessage()` variants.
+
+[[twitch_irc_capabilities]]
+[TIP]
+====
+An instance of `ConfigurableTmiSession` is provided as parameter of the `onConnect()` functions used by a TmiClient.
+
+It offers methods to activate https://dev.twitch.tv/docs/irc/membership[membership state event data], https://dev.twitch.tv/docs/irc/tags[tags] and https://dev.twitch.tv/docs/irc/commands[commands] capabilities.
+
+E.g. to enrich incoming messages with tags, use the following instruction in an `onConnect()` function:
+
+[source,kotlin]
+----
+import io.github.sykq.tcc.tmiClient
+
+    fun main() {
+        val tmiClient = tmiClient {
+            // configure your instance
+            // ... (omitted for brevity)
+            onConnect {
+                tagCapabilities()
+            }
+        }
+        // ...
+    }
+----
+====
+
+Instances are implicitly provided by a TmiClient when using one of the according methods to establish a connection, e.g. `connect()`, `receiveWithSession()` or `block()`.
+
+==== Example methods
+
+- `join()` can be used to join one or more additional channels (as in additional to the channels specified within a TmiClient's Configurer when creating a new TmiClient.
+- `leave()` can be used to leave one or more channels.
+- `textMessage()` can be used to send a text message to one or more channels.
+The following invocation will send _Hello_ to all joined channels:
++
+[source,kotlin]
+====
+tmiSession.textMessage("Hello")
+====
++
+The following will send a textMessage to all joined channels that start which name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
++
+[source,kotlin]
+====
+textMessage("Hello", *joinedChannels.filter { it.startsWith("a") }.toTypedArray())
+====
+
+- `clearChat()` sends the command `/clear` to a given channel.
+Such command sending methods are available for several other command.
+See the link:twitch-chat-client-core/src/main/kotlin/io/github/sykq/tcc/TmiSession.kt[TmiSession] class and its KDoc comments for the full list.
+
 === TmiMessage
+
+The `io.github.sykq.tcc.TmiMessage` class represents an incoming message originating from one of the channels within the TMI.
+
+It consists of:
+
+- `timestamp` = the timestamp of arrival at the client.
+- `channel` = the name of the originating channel of a message.
+- `user` = the authoring user of a message.
+- `text` = the text of a message.
+- `type` = one of the supported ``TmiMessageType``s
+- `tags` = the list of tags associated with a message. *NOTE:* Will only be supplied if link:#twitch_irc_capabilities[tag capabilities] are activated.
+
+Instances are implicitly provided by a TmiClient each time `onMessage()` is invoked and one of the according methods to establish a connection, e.g. `connect()`, `receiveWithSession()` or `block()` is used.
 
 === OnCommandAction
 
@@ -201,9 +268,11 @@ fun main() {
 ==== CheerAmountCondition
 
 === Connecting with multiple accounts (Spring Boot)
+
 TODO
 
 === BotRegistry (Spring Boot)
+
 TODO
 
 === BotBase/Bot/ReactiveBot (Spring Boot)
@@ -215,6 +284,7 @@ TODO
 A sample project consisting of a Spring Boot web service application which uses the features of this library can be found at https://github.com/sykq/twitch-chat-bot-service
 
 == Building
+
 [IMPORTANT]
 ====
 Builds with JDK 16+ won't succeed since kapt uses some internal API which is no longer accessible in those builds. +

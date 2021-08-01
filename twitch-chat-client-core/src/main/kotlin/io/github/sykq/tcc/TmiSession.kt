@@ -21,8 +21,11 @@ import reactor.kotlin.core.publisher.toFlux
  */
 sealed class TmiSession(
     internal val webSocketSession: WebSocketSession,
-    internal val joinedChannels: MutableList<String>
+    joinedChannels: MutableList<String>
 ) {
+    private val _joinedChannels: MutableList<String> = joinedChannels
+    internal val joinedChannels: List<String>
+        get() = _joinedChannels.toList()
     protected val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
@@ -37,7 +40,7 @@ sealed class TmiSession(
     fun textMessage(message: String, vararg channels: String) {
         actions.addAll(
             if (channels.isEmpty()) {
-                joinedChannels.map { webSocketSession.tmiTextMessage(message, it) }
+                _joinedChannels.map { webSocketSession.tmiTextMessage(message, it) }
             } else {
                 channels.map { webSocketSession.tmiTextMessage(message, it) }
             }
@@ -50,7 +53,7 @@ sealed class TmiSession(
     fun join(vararg channels: String) {
         actions.addAll(
             channels.map {
-                joinedChannels.add(it)
+                _joinedChannels.add(it)
                 webSocketSession.textMessage("JOIN ${it.prependIfMissing('#')}")
             }.toList()
         )
@@ -62,7 +65,7 @@ sealed class TmiSession(
     fun leave(vararg channels: String) {
         actions.addAll(
             channels.map {
-                joinedChannels.remove(it)
+                _joinedChannels.remove(it)
                 webSocketSession.textMessage("PART ${it.prependIfMissing('#')}")
             }.toList()
         )

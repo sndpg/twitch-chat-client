@@ -4,7 +4,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * Subtype of a [TmiSession] which allows for activating additional Twitch-specific capabilities (Membership, Tags,
- * Commands) as described in [Twitch IRC Capabilities](https://dev.twitch.tv/docs/irc/guide).
+ * Commands) as described in [Twitch IRC Capabilities](https://dev.twitch.tv/docs/irc/guide#twitch-irc-capabilities).
  *
  * **NOTE:** these capabilities are then activated within the [TmiClient.onMessage] block and not on following actions
  * within the same [TmiClient.onConnect] block.
