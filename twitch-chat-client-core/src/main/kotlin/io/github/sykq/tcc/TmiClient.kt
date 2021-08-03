@@ -48,6 +48,9 @@ class TmiClient internal constructor(configurer: Configurer) {
 
     private val onConnect: ConfigurableTmiSession.() -> Unit = configurer.onConnect
     private val onMessage: TmiSession.(TmiMessage) -> Unit = configurer.onMessage
+    // TODO: decide if this should be implemented (could then be used to register e.g. OnCommandActions without having
+    //  the user to bother with actually invoking these actions.
+    private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = listOf()
     private val messageSink: Sinks.Many<String> = configurer.messageSink
 
     /**
@@ -73,7 +76,12 @@ class TmiClient internal constructor(configurer: Configurer) {
             .thenMany(
                 Flux.merge(it.handleIncomingMessages()
                     .flatMap { tmiMessage ->
-                        resolveOnMessage(tmiMessage, DefaultTmiSession(it, channels), onMessage)
+                        // TODO: decide if this should be implemented
+                        // experimental start
+                        val tmiSession = DefaultTmiSession(it, channels)
+                        onMessageActions.forEach { action -> action(tmiSession, tmiMessage) }
+                        // experimental end
+                        resolveOnMessage(tmiMessage, tmiSession, onMessage)
                     }
                     .log("", Level.FINE),
                     it.pushToSink()
