@@ -8,4 +8,4 @@ import io.github.sykq.tcc.TmiMessage
  * @param message the incoming message
  * @param command the resolved command with potential additional arguments
  */
-data class MessageContext(val message: TmiMessage, val command: Command)
+data class CommandMessageContext(val message: TmiMessage, val command: Command)
