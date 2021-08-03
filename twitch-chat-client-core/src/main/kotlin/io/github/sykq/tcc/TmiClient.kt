@@ -86,13 +86,18 @@ class TmiClient internal constructor(configurer: Configurer) {
      * Allows to directly manipulate the [Flux] returned from [WebSocketSession.receive] by providing an according
      * [onMessage] function.
      *
+     * Mainly intended to just listen for incoming messages and change some internal (enclosed) state based on the
+     * messages received.
+     *
+     * For an "interactive" session, consider using [connectWithOnMessageTransform].
+     *
      * @param onConnect the actions to execute upon connecting to the TMI.
      * @param onMessage function to process the Flux returned from [WebSocketSession.receive]. The items emitted by the
      * flux are mapped to [TmiMessage]s before being handed over to the onMessage function
      */
     fun receive(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (Flux<TmiMessage>) -> Mono<Void> = { it.then() }
+        onMessage: (Flux<TmiMessage>) -> Flux<*> = { it }
     ): Mono<Void> = client.execute(URI.create(url)) {
         it.connectAndJoinInitialChannels()
             .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
@@ -108,9 +113,9 @@ class TmiClient internal constructor(configurer: Configurer) {
      * @param onMessage function to process the Flux returned from [WebSocketSession.receive] and also allows for access
      * of the [TmiSession] (holding the underlying [WebSocketSession]) to send messages in response to incoming data.
      */
-    fun receiveWithSession(
+    fun connectWithOnMessageTransform(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<TmiMessage> = { _, messageFlux -> messageFlux }
+        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<*> = { _, messageFlux -> messageFlux }
     ): Mono<Void> = client.execute(URI.create(url)) {
         // TODO: find a better way of sending the queued actions (within TmiSession)
         val tmiSession = DefaultTmiSession(it, channels)
@@ -137,7 +142,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     fun receiveWebSocketMessage(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (Flux<WebSocketMessage>) -> Mono<Void> = { it.then() }
+        onMessage: (Flux<WebSocketMessage>) -> Flux<*> = { it }
     ): Mono<Void> = client.execute(URI.create(url)) {
         it.connectAndJoinInitialChannels()
             .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
@@ -338,7 +343,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          * @see TmiClient.connect
          * @see TmiClient.connectWithPublisher
          * @see TmiClient.receive
-         * @see TmiClient.receiveWithSession
+         * @see TmiClient.connectWithOnMessageTransform
          * @see TmiClient.receiveWebSocketMessage
          *
          */
@@ -357,7 +362,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          * @see TmiClient.connect
          * @see TmiClient.connectWithPublisher
          * @see TmiClient.receive
-         * @see TmiClient.receiveWithSession
+         * @see TmiClient.connectWithOnMessageTransform
          * @see TmiClient.receiveWebSocketMessage
          */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {

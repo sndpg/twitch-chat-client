@@ -85,7 +85,6 @@ internal class TmiClientTest {
                 .doOnNext {
                     println("$it received")
                 }
-                .then()
         }.block()
     }
 
@@ -94,11 +93,11 @@ internal class TmiClientTest {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
-                textMessage("connected with receiveWithSession()")
+                textMessage("connected with connectWithOnMessageTransform()")
             }
         }
 
-        tmiClient.receiveWithSession { session, messageFlux ->
+        tmiClient.connectWithOnMessageTransform { session, messageFlux ->
             messageFlux.filter { it.text == "test" }
                 .doOnNext {
                     println("$it received")
