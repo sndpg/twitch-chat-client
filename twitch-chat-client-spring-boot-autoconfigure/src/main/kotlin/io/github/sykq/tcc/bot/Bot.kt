@@ -1,6 +1,7 @@
 package io.github.sykq.tcc.bot
 
-import io.github.sykq.tcc.*
+import io.github.sykq.tcc.TmiMessage
+import io.github.sykq.tcc.TmiSession
 
 /**
  * The contract for a Class which will connect to the TMI (Twitch Messaging Interface) and perform certain actions
@@ -18,13 +19,13 @@ interface Bot : BotBase {
 
     class Configurer<T : BotBase> : BotBase.Configurer<T>() {
 
-        internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
+        internal var onMessageActions: MutableList<TmiSession.(TmiMessage) -> Unit> = mutableListOf()
 
         /**
          * Provide the actions to execute in response to an incoming message.
          */
-        fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
-            onMessage = doOnMessage
+        fun onMessage(vararg onMessageActions: TmiSession.(TmiMessage) -> Unit) {
+            this.onMessageActions += onMessageActions
         }
 
     }

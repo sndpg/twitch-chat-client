@@ -47,10 +47,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     private val filterUserMessages = configurer.filterUserMessages
 
     private val onConnect: ConfigurableTmiSession.() -> Unit = configurer.onConnect
-    private val onMessage: TmiSession.(TmiMessage) -> Unit = configurer.onMessage
-    // TODO: decide if this should be implemented (could then be used to register e.g. OnCommandActions without having
-    //  the user to bother with actually invoking these actions.
-    private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = listOf()
+    private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = configurer.onMessageActions
     private val messageSink: Sinks.Many<String> = configurer.messageSink
 
     /**
@@ -76,12 +73,7 @@ class TmiClient internal constructor(configurer: Configurer) {
             .thenMany(
                 Flux.merge(it.handleIncomingMessages()
                     .flatMap { tmiMessage ->
-                        // TODO: decide if this should be implemented
-                        // experimental start
-                        val tmiSession = DefaultTmiSession(it, channels)
-                        onMessageActions.forEach { action -> action(tmiSession, tmiMessage) }
-                        // experimental end
-                        resolveOnMessage(tmiMessage, tmiSession, onMessage)
+                        invokeOnMessageActions(tmiMessage, DefaultTmiSession(it, channels), onMessage)
                     }
                     .log("", Level.FINE),
                     it.pushToSink()
@@ -257,13 +249,14 @@ class TmiClient internal constructor(configurer: Configurer) {
         return tmiSession.webSocketSession.send(tmiSession.consumeActions())
     }
 
-    private fun resolveOnMessage(
+    private fun invokeOnMessageActions(
         tmiMessage: TmiMessage,
         tmiSession: TmiSession,
         onMessage: (TmiSession.(TmiMessage) -> Unit)?
     ): Mono<Void> {
-        val resolvedOnMessage = onMessage ?: this.onMessage
-        resolvedOnMessage(tmiSession, tmiMessage)
+        val resolvedOnMessageActions =
+            if (onMessage == null) onMessageActions else listOf(onMessage)
+        resolvedOnMessageActions.forEach { it(tmiSession, tmiMessage) }
         return tmiSession.webSocketSession.send(tmiSession.consumeActions())
     }
 
@@ -327,10 +320,22 @@ class TmiClient internal constructor(configurer: Configurer) {
          */
         var filterUserMessages = false
 
+        /**
+         * A sink which can be used to send messages to all joined channels.
+         *
+         * Contrary to [onMessage] and [onMessageActions], this allows for sending of messages independent of incoming
+         * messages (e.g. triggered by user input).
+         */
         var messageSink: Sinks.Many<String> = Sinks.many().multicast().directBestEffort()
 
+        /**
+         * Provide a list of actions to run in response to an incoming message.
+         *
+         * This is an alternative to the single
+         */
+        var onMessageActions: MutableList<TmiSession.(TmiMessage) -> Unit> = mutableListOf()
+
         internal var onConnect: ConfigurableTmiSession.() -> Unit = {}
-        internal var onMessage: TmiSession.(TmiMessage) -> Unit = {}
 
         /**
          * Provide the names of the [channels] to immediately join after connecting.
@@ -362,6 +367,9 @@ class TmiClient internal constructor(configurer: Configurer) {
         /**
          * Provide the actions to execute in response to an incoming message.
          *
+         * Multiple invocations of this method add additional actions to the [onMessageActions] list of actions to be
+         * executed in response to an incoming message.
+         *
          * This is optional. The `onMessage` actions can alternatively be supplied directly when invoking one of the
          * connection establishing methods.
          *
@@ -374,7 +382,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          * @see TmiClient.receiveWebSocketMessage
          */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {
-            onMessage = doOnMessage
+            onMessageActions.add(doOnMessage)
         }
 
     }

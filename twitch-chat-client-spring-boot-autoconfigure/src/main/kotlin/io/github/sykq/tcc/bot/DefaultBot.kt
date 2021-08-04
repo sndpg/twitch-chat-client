@@ -19,7 +19,7 @@ class DefaultBot internal constructor(configurer: Bot.Configurer<DefaultBot>) : 
     private val initialize: DefaultBot.() -> Unit = configurer.initialize
     private val channelsToJoin: List<String> = configurer.channels
     private val onConnectActions: List<ConfigurableTmiSession.() -> Unit> = listOf(configurer.onConnect)
-    private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = listOf(configurer.onMessage)
+    private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = configurer.onMessageActions
     private val beforeShutdown: DefaultBot.() -> Unit = configurer.beforeShutdown
 
     override fun initialize() {

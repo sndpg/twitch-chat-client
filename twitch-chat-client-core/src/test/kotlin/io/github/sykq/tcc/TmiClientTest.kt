@@ -1,14 +1,14 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.action.OnCommandAction
 import mu.KotlinLogging
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 
 private val LOG = KotlinLogging.logger {}
 
-@Disabled
+//@Disabled
 internal class TmiClientTest {
 
     @Test
@@ -33,6 +33,9 @@ internal class TmiClientTest {
 //                clearChat("sykq")
 //                textMessage("sykq", "Hi test")
 //                textMessage("sykq", "<3")
+            }
+            onMessageActions += OnCommandAction("!test") { (message, command) ->
+                textMessage("test received from ${message.user}")
             }
             onMessage {
                 println(it)
