@@ -2,6 +2,7 @@ package io.github.sykq.tcc
 
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
 import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
+import io.github.sykq.tcc.TmiClient.Configurer
 import io.github.sykq.tcc.internal.prependIfMissing
 import org.reactivestreams.Publisher
 import org.springframework.web.reactive.socket.WebSocketMessage
@@ -33,6 +34,10 @@ fun tmiClient(configure: TmiClient.Configurer.() -> Unit): TmiClient {
  * If [username]/[password] are not explicitly specified via the given `configurer` the [username] will be
  * retrieved from the environment or jvm properties by reading the value of the key [TMI_CLIENT_USERNAME_KEY] and the
  * password by reading the value of the key [TMI_CLIENT_PASSWORD_KEY].
+ *
+ * The keys of the environment variables/system properties to use for reading the username or password values can be
+ * modified by setting an according value for the [Configurer.usernameProperty] or [Configurer.passwordProperty]
+ * respectively.
  *
  * @param configurer configuration that will be applied at instance creation
  */
@@ -71,11 +76,12 @@ class TmiClient internal constructor(configurer: Configurer) {
         it.connectAndJoinInitialChannels()
             .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
             .thenMany(
-                Flux.merge(it.handleIncomingMessages()
-                    .flatMap { tmiMessage ->
-                        invokeOnMessageActions(tmiMessage, DefaultTmiSession(it, channels), onMessage)
-                    }
-                    .log("", Level.FINE),
+                Flux.merge(
+                    it.handleIncomingMessages()
+                        .flatMap { tmiMessage ->
+                            invokeOnMessageActions(tmiMessage, DefaultTmiSession(it, channels), onMessage)
+                        }
+                        .log("", Level.FINE),
                     it.pushToSink()
                 )
             )

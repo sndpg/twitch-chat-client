@@ -1,5 +1,8 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.action.CommandMessageContext
+import io.github.sykq.tcc.action.OnCheerAction
+import io.github.sykq.tcc.action.OnCommandAction
 import io.github.sykq.tcc.internal.prependIfMissing
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -160,6 +163,54 @@ sealed class TmiSession(
     fun marker(description: String, channel: String = joinedChannels[0]) {
         textMessage("/marker $description", channel)
     }
+
+    /**
+     * Execute an [action], if the given [message] denotes a cheer matching the given [amountCondition].
+     *
+     * If the message is not a cheer, no action will be performed.
+     *
+     * @param amountCondition the condition the cheered amount has to fulfill
+     * @param message the message which (potentially) contains the cheer (amount)
+     * @param action the action to be performed, if the [amountCondition] resolves to `true` for the incoming cheer
+     * amount.
+     */
+    fun onCheer(
+        amountCondition: (Int) -> Boolean,
+        message: TmiMessage,
+        action: TmiSession.(TmiMessage, Int) -> Unit
+    ): Unit = OnCheerAction(amountCondition, action)(this, message)
+
+    /**
+     * Execute an [action], if the incoming [message] consists of the specified [command].
+     *
+     * If the message does not contain the required [command], no action will be performed.
+     *
+     * @param command the value a text message must be equal to for this [action] to be executed.
+     * @param options optional configuration options.
+     * @param message the message which potentially contains the given command
+     * @param action the action to be performed, if an incoming text message is equal to the [command].
+     */
+    fun onCommand(
+        command: String,
+        options: OnCommandAction.Options = OnCommandAction.Options(),
+        message: TmiMessage,
+        action: TmiSession.(CommandMessageContext) -> Unit
+    ): Unit = OnCommandAction(command, options, action)(this, message)
+
+    /**
+     * Execute an [action], if the incoming [message] consists of the specified [command].
+     *
+     * If the message does not contain the required [command], no action will be performed.
+     *
+     * @param command the value a text message must be equal to for this [action] to be executed.
+     * @param message the message which potentially contains the given command
+     * @param action the action to be performed, if an incoming text message is equal to the [command].
+     */
+    fun onCommand(
+        command: String,
+        message: TmiMessage,
+        action: TmiSession.(CommandMessageContext) -> Unit
+    ): Unit = OnCommandAction(command, OnCommandAction.Options(), action)(this, message)
 
     /**
      * Map the current actions to a [Flux] and clear the list of cached actions.
