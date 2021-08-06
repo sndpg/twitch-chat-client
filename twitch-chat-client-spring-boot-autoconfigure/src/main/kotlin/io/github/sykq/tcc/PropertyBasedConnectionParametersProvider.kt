@@ -22,5 +22,4 @@ class PropertyBasedConnectionParametersProvider(
                 )
             } ?: throw IllegalArgumentException("could not find connectionParameters for $botName")
 
-
 }
