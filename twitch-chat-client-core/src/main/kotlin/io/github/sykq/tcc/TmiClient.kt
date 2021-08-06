@@ -121,7 +121,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     fun connectAndTransform(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<*> = { _, messageFlux -> messageFlux }
+        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<*>
     ): Mono<Void> = client.execute(URI.create(url)) {
         // TODO: find a better way of sending the queued actions (within TmiSession)
         val tmiSession = DefaultTmiSession(it, channels)
@@ -148,7 +148,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     fun receiveWebSocketMessage(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (Flux<WebSocketMessage>) -> Flux<*> = { it }
+        onMessage: (Flux<WebSocketMessage>) -> Flux<*>,
     ): Mono<Void> = client.execute(URI.create(url)) {
         it.connectAndJoinInitialChannels()
             .then(resolveOnConnect(ConfigurableTmiSession(it, channels), onConnect))
@@ -167,7 +167,8 @@ class TmiClient internal constructor(configurer: Configurer) {
      * the reactive streams' [Publisher] as arguments for [onConnect] and [onMessage] (instead of the wrapping helper
      * types [TmiSession] and [TmiMessage]).
      *
-     * Contrary to [connect], does not filter any messages, e.g. a `PING` will be forwarded to the [onMessage] function.
+     * Contrary to [connect], this method will not filter any messages, e.g. a `PING` will be forwarded to the
+     * [onMessage] function.
      *
      * @param onConnect the actions to execute upon connecting to the TMI.
      * @param onMessage the actions to perform when receiving a message
@@ -175,7 +176,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     @Suppress("MemberVisibilityCanBePrivate")
     fun connectWithPublisher(
         onConnect: (WebSocketSession) -> Publisher<Void> = { Mono.empty() },
-        onMessage: (WebSocketSession, WebSocketMessage) -> Publisher<Void> = { _, _ -> Mono.empty() }
+        onMessage: (WebSocketSession, WebSocketMessage) -> Publisher<Void>
     ): Mono<Void> = client.execute(URI.create(url)) {
         it.connectAndJoinInitialChannels()
             .thenMany(onConnect(it))
@@ -337,7 +338,11 @@ class TmiClient internal constructor(configurer: Configurer) {
         /**
          * Provide a list of actions to run in response to an incoming message.
          *
-         * This is an alternative to the single
+         * This is an alternative to specifying such actions through invocations of [onMessage].
+         *
+         * **NOTE:** the provided actions will only be honored when using [TmiClient.block] or [TmiClient.connect].
+         * Other session establishing methods of [TmiClient] require the action(s) to execute to be provided as a
+         * method parameter.
          */
         var onMessageActions: MutableList<TmiSession.(TmiMessage) -> Unit> = mutableListOf()
 
@@ -378,6 +383,10 @@ class TmiClient internal constructor(configurer: Configurer) {
          *
          * This is optional. The `onMessage` actions can alternatively be supplied directly when invoking one of the
          * connection establishing methods.
+         *
+         * **NOTE:** the provided actions will only be honored when using [TmiClient.block] or [TmiClient.connect].
+         * Other session establishing methods of [TmiClient] require the action(s) to execute to be provided as a
+         * method parameter.
          *
          * @see TmiClient.block
          * @see TmiClient.blockWithPublisher
