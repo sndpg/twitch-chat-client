@@ -6,7 +6,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * Subtype of a [TmiSession] which allows for activating additional Twitch-specific capabilities (Membership, Tags,
  * Commands) as described in [Twitch IRC Capabilities](https://dev.twitch.tv/docs/irc/guide#twitch-irc-capabilities).
  *
- * **NOTE:** these capabilities are then activated within the [TmiClient.onMessage] block and not on following actions
+ * **NOTE:** these capabilities are then activated within the [TmiClient.onMessageActions] and not on following actions
  * within the same [TmiClient.onConnect] block.
  */
 class ConfigurableTmiSession(webSocketSession: WebSocketSession, joinedChannels: MutableList<String>) :
@@ -29,7 +29,7 @@ class ConfigurableTmiSession(webSocketSession: WebSocketSession, joinedChannels:
     /**
      * Enables [Twitch IRC: Commands-Capabilities](https://dev.twitch.tv/docs/irc/commands) on this session.
      */
-    fun commandCapabilities(){
+    fun commandCapabilities() {
         actions.add(webSocketSession.textMessage("CAP REQ :twitch.tv/commands"))
     }
 }
