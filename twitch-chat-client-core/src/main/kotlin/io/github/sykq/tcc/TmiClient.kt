@@ -95,7 +95,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      * Mainly intended to just listen for incoming messages and change some internal (enclosed) state based on the
      * messages received.
      *
-     * For an "interactive" session, consider using [connectWithOnMessageTransform].
+     * For an "interactive" session, consider using [connectAndTransform].
      *
      * @param onConnect the actions to execute upon connecting to the TMI.
      * @param onMessage function to process the Flux returned from [WebSocketSession.receive]. The items emitted by the
@@ -119,7 +119,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      * @param onMessage function to process the Flux returned from [WebSocketSession.receive] and also allows for access
      * of the [TmiSession] (holding the underlying [WebSocketSession]) to send messages in response to incoming data.
      */
-    fun connectWithOnMessageTransform(
+    fun connectAndTransform(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
         onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<*> = { _, messageFlux -> messageFlux }
     ): Mono<Void> = client.execute(URI.create(url)) {
@@ -362,7 +362,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          * @see TmiClient.connect
          * @see TmiClient.connectWithPublisher
          * @see TmiClient.receive
-         * @see TmiClient.connectWithOnMessageTransform
+         * @see TmiClient.connectAndTransform
          * @see TmiClient.receiveWebSocketMessage
          *
          */
@@ -384,7 +384,7 @@ class TmiClient internal constructor(configurer: Configurer) {
          * @see TmiClient.connect
          * @see TmiClient.connectWithPublisher
          * @see TmiClient.receive
-         * @see TmiClient.connectWithOnMessageTransform
+         * @see TmiClient.connectAndTransform
          * @see TmiClient.receiveWebSocketMessage
          */
         fun onMessage(doOnMessage: TmiSession.(TmiMessage) -> Unit) {

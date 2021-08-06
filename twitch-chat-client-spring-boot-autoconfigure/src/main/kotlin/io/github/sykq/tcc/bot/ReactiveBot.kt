@@ -21,7 +21,7 @@ interface ReactiveBot : BotBase {
      * given [onMessage] method.
      */
     fun receive(tmiClient: TmiClient): Mono<Void> =
-        tmiClient.connectWithOnMessageTransform({ session -> onConnect(session) },
+        tmiClient.connectAndTransform({ session -> onConnect(session) },
             { session, messages -> onMessage(session, messages) })
 
     class Configurer<T : BotBase> : BotBase.Configurer<T>() {

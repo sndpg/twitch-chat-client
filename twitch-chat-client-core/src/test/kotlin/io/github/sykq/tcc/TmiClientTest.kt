@@ -93,7 +93,7 @@ internal class TmiClientTest {
     }
 
     @Test
-    fun testReceiveWithSession() {
+    fun testConnectAndTransform() {
         val tmiClient = tmiClient {
             channels += "sykq"
             onConnect {
@@ -101,7 +101,7 @@ internal class TmiClientTest {
             }
         }
 
-        tmiClient.connectWithOnMessageTransform { session, messageFlux ->
+        tmiClient.connectAndTransform { session, messageFlux ->
             messageFlux.filter { it.text == "test" }
                 .doOnNext {
                     println("$it received")

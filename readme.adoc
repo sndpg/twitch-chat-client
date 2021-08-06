@@ -222,7 +222,7 @@ import io.github.sykq.tcc.tmiClient
 <1> activate tag capabilities
 ====
 
-Instances are implicitly provided by a TmiClient when using one of the according methods to establish a connection, e.g. `connect()`, `receiveWithSession()` or `block()`.
+Instances are implicitly provided by a TmiClient when using one of the according methods to establish a connection, e.g. `connect()`, `connectAndTransform()` or `block()`.
 
 ==== Example methods
 
@@ -260,7 +260,7 @@ It consists of:
 - `type` = one of the supported ``TmiMessageType``s
 - `tags` = the list of tags associated with a message. *NOTE:* Will only be supplied if link:#twitch_irc_capabilities[tag capabilities] are activated.
 
-Instances are implicitly provided by a TmiClient each time `onMessage()` is invoked and one of the according methods to establish a connection, e.g. `connect()`, `receiveWithSession()` or `block()` is used.
+Instances are implicitly provided by a TmiClient each time `onMessage()` is invoked and one of the according methods to establish a connection, e.g. `connect()`, `connectAndTransform()` or `block()` is used.
 
 === OnCommandAction
 
