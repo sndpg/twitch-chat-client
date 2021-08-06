@@ -6,12 +6,22 @@ import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
 import java.util.*
 
+/**
+ * Creates a new [Bot].
+ *
+ * The instance to be created can be configured by using an according [Bot.Configurer].
+ */
 fun defaultBot(configure: Bot.Configurer<DefaultBot>.() -> Unit): DefaultBot {
     val configurer = Bot.Configurer<DefaultBot>()
     configure(configurer)
     return DefaultBot(configurer)
 }
 
+/**
+ * A default implementation of a [Bot].
+ *
+ * Can be configured by using an according [Bot.Configurer].
+ */
 class DefaultBot internal constructor(configurer: Bot.Configurer<DefaultBot>) : Bot {
     override val tmiClient: TmiClient = configurer.tmiClient!!
 

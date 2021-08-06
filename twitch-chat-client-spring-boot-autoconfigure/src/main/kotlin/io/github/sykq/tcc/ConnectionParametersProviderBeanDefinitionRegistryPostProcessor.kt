@@ -7,6 +7,10 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
 import org.springframework.core.env.Environment
 
+/**
+ * Creates a [ConnectionParametersProvider] bean for each bot specified within the properties an application
+ * ([TmiProperties.bot] and [TmiProperties.bots]).
+ */
 class ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(
     private val environment: Environment,
 ) : BeanDefinitionRegistryPostProcessor {

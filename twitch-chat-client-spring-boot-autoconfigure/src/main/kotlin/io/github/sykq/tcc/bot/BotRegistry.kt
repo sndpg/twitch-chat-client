@@ -10,6 +10,11 @@ import kotlin.concurrent.thread
 
 private val LOG = KotlinLogging.logger {}
 
+/**
+ * Manages [BotBase] beans of this application.
+ *
+ * E.g. resolves the [TmiClient] to be used by each bot and connects them to the TMI.
+ */
 class BotRegistry(
     bots: List<BotBase>,
     connectionParametersProviders: List<ConnectionParametersProvider>
@@ -32,7 +37,7 @@ class BotRegistry(
             LOG.warn { "could not find a bot with name $botName. Therefore, no connection has been established." }
         }
 
-    fun connectAll() = bots.values.mergeAndConnect()
+    fun connectAll(): List<Mono<Void>> = bots.values.mergeAndConnect()
 
     /**
      * Get all Bots which are assignable from the given [type].

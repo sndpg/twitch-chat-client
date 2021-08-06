@@ -2,6 +2,10 @@ package io.github.sykq.tcc
 
 import org.springframework.core.env.Environment
 
+/**
+ * [ConnectionParametersProvider] implementation based on the properties an application (as specified within
+ * [TmiProperties.bot] and [TmiProperties.bots]).
+ */
 class PropertyBasedConnectionParametersProvider(
     override val botName: String,
     private val tmiProperties: TmiProperties,

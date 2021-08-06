@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Conditional
 import org.springframework.core.env.Environment
 import org.springframework.core.type.AnnotatedTypeMetadata
 
+/**
+ * AutoConfiguration for [BotBase] and [TmiClient] related functionality.
+ */
 @EnableConfigurationProperties(TmiProperties::class)
 class TmiAutoconfiguration {
 
