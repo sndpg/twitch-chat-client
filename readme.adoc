@@ -239,9 +239,9 @@ tmiSession.textMessage("Hello")
 The following will send a textMessage to all joined channels that start which name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
 +
 [source,kotlin]
-====
+----
 textMessage("Hello", *joinedChannels.filter { it.startsWith("a") }.toTypedArray())
-====
+----
 
 - `clearChat()` sends the command `/clear` to a given channel.
 Such command sending methods are available for several other command.
