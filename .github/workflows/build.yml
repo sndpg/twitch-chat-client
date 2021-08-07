@@ -10,6 +10,19 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
+    - uses: actions/delete-package-versions@v1
+      with:
+#        package-version-ids: 'PV_lADOFwId0c4ADhPRzgCrjXk, PV_lADOFwId0c4ADhPSzgCrjXo, PV_lADOFwId0c4ADhPTzgCrjX0'
+        package-name: 'io.github.sykq.twitch-chat-client-core'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/delete-package-versions@v1
+      with:
+        package-name: 'io.github.sykq.twitch-chat-client-spring-boot-autoconfigure'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/delete-package-versions@v1
+      with:
+        package-name: 'io.github.sykq.twitch-chat-client-spring-boot-starter'
+        token: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/checkout@v2
     - uses: actions/setup-java@v1
       with:
