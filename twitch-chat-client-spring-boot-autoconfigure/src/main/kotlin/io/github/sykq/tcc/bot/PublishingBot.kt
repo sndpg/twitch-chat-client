@@ -22,7 +22,7 @@ interface PublishingBot : BotBase {
      */
     fun receive(tmiClient: TmiClient): Mono<Void> =
         tmiClient.connectAndTransform({ session -> onConnect(session) },
-            { session, messages -> onMessage(session, messages) })
+            { onMessage(this, it) })
 
     class Configurer<T : BotBase> : BotBase.Configurer<T>() {
 
