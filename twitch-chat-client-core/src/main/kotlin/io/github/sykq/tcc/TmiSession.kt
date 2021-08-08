@@ -197,7 +197,7 @@ sealed class TmiSession(
     ): TmiSession = OnCommandAction(command, OnCommandAction.Options(), action)(this, message).let { this }
 
     /**
-     * Execute an [action], with this [session] and incoming [message].
+     * Execute an [action], with this [TmiSession] and an incoming [message].
      *
      * Can be used e.g. in conjunction with an [OnCommandAction].
      *
