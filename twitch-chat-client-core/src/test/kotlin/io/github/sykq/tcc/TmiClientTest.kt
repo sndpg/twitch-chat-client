@@ -14,8 +14,62 @@ internal class TmiClientTest {
 
     @Test
 //    @Disabled
-    fun test() {
+    fun testBlockWithBlockingOnMessage() {
         val messageSink = Sinks.many().unicast().onBackpressureBuffer<String>()
+
+        var count = 0
+
+        val tmiClient = tmiClient {
+            channels += "sykq"
+//            channels += "plus_two_bot"
+//            channels += "northernlion"
+//            channels += "codemiko"
+//            channels += "sunglitters"
+//            channels += "harrie"
+//            channels += "dumbdog"
+            this.messageSink = messageSink
+            onConnect {
+                LOG.warn("connected!!!!!")
+                tagCapabilities()
+                textMessage("connected")
+//                textMessage(joinedChannels[0], "connected")
+//                clearChat("sykq")
+//                textMessage("sykq", "Hi test")
+//                textMessage("sykq", "<3")
+            }
+            onMessageActions += OnCommandAction("!test") { (message, command) ->
+                textMessage("test received from ${message.user}")
+            }
+            onMessage {
+                count++
+                if (count % 2 == 1){
+                    Thread.sleep(1000L)
+                }
+                println(it)
+                messageSink.tryEmitNext("test123")
+                messageSink.tryEmitNext("test124")
+//                println("MESSAGE=${it.text} of type=${it.type} received at ${it.timestamp}")
+//                if (message.text == "!hello") {
+//                    textMessage(message.channel, "Hi ${text.user}!")
+//                }
+//                if (it.text  == "!emoteonly"){
+//                    emoteOnly(it.channel)
+//                }
+//                if (it.text == "!emoteonlyoff"){
+//                    emoteOnlyOff(it.channel)
+//                }
+            }
+        }
+        tmiClient.block()
+
+    }
+
+    @Test
+//    @Disabled
+    fun testBlockSimple() {
+        val messageSink = Sinks.many().unicast().onBackpressureBuffer<String>()
+
+        var count = 0
 
         val tmiClient = tmiClient {
             channels += "sykq"
@@ -42,16 +96,6 @@ internal class TmiClientTest {
                 println(it)
                 messageSink.tryEmitNext("test123")
                 messageSink.tryEmitNext("test124")
-//                println("MESSAGE=${it.text} of type=${it.type} received at ${it.timestamp}")
-//                if (message.text == "!hello") {
-//                    textMessage(message.channel, "Hi ${text.user}!")
-//                }
-//                if (it.text  == "!emoteonly"){
-//                    emoteOnly(it.channel)
-//                }
-//                if (it.text == "!emoteonlyoff"){
-//                    emoteOnlyOff(it.channel)
-//                }
             }
         }
         tmiClient.block()
