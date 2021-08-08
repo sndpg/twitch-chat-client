@@ -197,6 +197,19 @@ sealed class TmiSession(
     ): TmiSession = OnCommandAction(command, OnCommandAction.Options(), action)(this, message).let { this }
 
     /**
+     * Execute an [action], with this [session] and incoming [message].
+     *
+     * Can be used e.g. in conjunction with an [OnCommandAction].
+     *
+     * @param message the message which potentially contains the given command
+     * @param action the action to be performed.
+     */
+    fun invokeAction(
+        message: TmiMessage,
+        action: (TmiSession, TmiMessage) -> Unit,
+    ): TmiSession = action(this, message).let { this }
+
+    /**
      * Map the current actions to a [Flux] and clear the list of cached actions.
      */
     internal fun consumeActions(): Flux<WebSocketMessage> {
