@@ -121,7 +121,7 @@ class TmiClient internal constructor(configurer: Configurer) {
      */
     fun connectAndTransform(
         onConnect: ((ConfigurableTmiSession) -> Unit)? = null,
-        onMessage: (TmiSession, Flux<TmiMessage>) -> Flux<*>
+        onMessage: TmiSession.(Flux<TmiMessage>) -> Flux<*>
     ): Mono<Void> = client.execute(URI.create(url)) {
         // TODO: find a better way of sending the queued actions (within TmiSession)
         val tmiSession = DefaultTmiSession(it, channels)

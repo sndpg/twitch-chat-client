@@ -2,13 +2,14 @@ package io.github.sykq.tcc
 
 import io.github.sykq.tcc.action.OnCommandAction
 import mu.KotlinLogging
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks
 
 private val LOG = KotlinLogging.logger {}
 
-//@Disabled
+@Disabled
 internal class TmiClientTest {
 
     @Test
@@ -100,14 +101,14 @@ internal class TmiClientTest {
             }
         }
 
-        tmiClient.connectAndTransform { session, messageFlux ->
-            messageFlux.filter { it.text == "test" }
-                .doOnNext {
-                    println("$it received")
+        tmiClient.connectAndTransform {
+            it.filter { message -> message.text == "test" }
+                .doOnNext { message ->
+                    println("$message received")
                 }
                 .doOnNext {
                     // TODO: the sending/consummation of actions needs a better api for this purpose
-                    session.textMessage("test received", "sykq")
+                    textMessage("test received", "sykq")
 //                    session.webSocketSession.send(session.consumeActions())
                 }
 //                .flatMap {
