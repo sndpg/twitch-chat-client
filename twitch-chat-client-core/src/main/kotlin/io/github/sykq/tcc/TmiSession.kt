@@ -27,8 +27,9 @@ sealed class TmiSession(
     joinedChannels: MutableList<String>
 ) {
     private val _joinedChannels: MutableList<String> = joinedChannels
-    internal val joinedChannels: List<String>
+    val joinedChannels: List<String>
         get() = _joinedChannels.toList()
+
     protected val actions: MutableList<WebSocketMessage> = mutableListOf()
 
     /**
@@ -40,7 +41,7 @@ sealed class TmiSession(
      * @param message the text message to send.
      * @param channels the channels which should be used as the target of the given message.
      */
-    fun textMessage(message: String, vararg channels: String) {
+    fun textMessage(message: String, vararg channels: String): TmiSession {
         actions.addAll(
             if (channels.isEmpty()) {
                 _joinedChannels.map { webSocketSession.tmiTextMessage(message, it) }
@@ -48,30 +49,33 @@ sealed class TmiSession(
                 channels.map { webSocketSession.tmiTextMessage(message, it) }
             }
         )
+        return this
     }
 
     /**
      * Join the given [channels].
      */
-    fun join(vararg channels: String) {
+    fun join(vararg channels: String): TmiSession {
         actions.addAll(
             channels.map {
                 _joinedChannels.add(it)
                 webSocketSession.textMessage("JOIN ${it.prependIfMissing('#')}")
             }.toList()
         )
+        return this
     }
 
     /**
      * Leave the given [channels].
      */
-    fun leave(vararg channels: String) {
+    fun leave(vararg channels: String): TmiSession {
         actions.addAll(
             channels.map {
                 _joinedChannels.remove(it)
                 webSocketSession.textMessage("PART ${it.prependIfMissing('#')}")
             }.toList()
         )
+        return this
     }
 
     /**
@@ -79,90 +83,70 @@ sealed class TmiSession(
      *
      * This command will clear the chat if the initiating user owns the required privileges to do so.
      */
-    fun clearChat(channel: String = joinedChannels[0]) {
-        textMessage("/clear", channel)
-    }
+    fun clearChat(channel: String): TmiSession = textMessage("/clear", channel)
 
     /**
      * Sends the command `/emoteonly` to the given [channel].
      *
      * This will activate emote only mode if the initiating user owns the required privileges to do so.
      */
-    fun emoteOnly(channel: String = joinedChannels[0]) {
-        textMessage("/emoteonly", channel)
-    }
+    fun emoteOnly(channel: String): TmiSession = textMessage("/emoteonly", channel)
 
     /**
      * Sends the command `/emoteonlyoff` to the given [channel].
      *
      * This will deactivate emote only mode if the initiating user owns the required privileges to do so.
      */
-    fun emoteOnlyOff(channel: String = joinedChannels[0]) {
-        textMessage("/emoteonlyoff", channel)
-    }
+    fun emoteOnlyOff(channel: String): TmiSession = textMessage("/emoteonlyoff", channel)
 
     /**
      * Sends the command `/followers` to the given [channel].
      *
      * This will activate follower only mode if the initiating user owns the required privileges to do so.
      */
-    fun followersOnly(channel: String = joinedChannels[0]) {
-        textMessage("/followers", channel)
-    }
+    fun followersOnly(channel: String): TmiSession = textMessage("/followers", channel)
 
     /**
      * Sends the command `/followersoff` to the given [channel].
      *
      * This will deactivate follower only mode if the initiating user owns the required privileges to do so.
      */
-    fun followersOnlyOff(channel: String = joinedChannels[0]) {
-        textMessage("/followersoff", channel)
-    }
+    fun followersOnlyOff(channel: String): TmiSession = textMessage("/followersoff", channel)
 
     /**
      * Sends the command `/slow` to the given [channel].
      *
      * This will active slow mode if the initiating user owns the required privileges to do so.
      */
-    fun slow(channel: String = joinedChannels[0]) {
-        textMessage("/slow", channel)
-    }
+    fun slow(channel: String): TmiSession = textMessage("/slow", channel)
 
     /**
      * Sends the command `/slowoff` to the given [channel].
      *
      * This will deactivate slow mode if the initiating user owns the required privileges to do so.
      */
-    fun slowOff(channel: String = joinedChannels[0]) {
-        textMessage("/slowoff", channel)
-    }
+    fun slowOff(channel: String): TmiSession = textMessage("/slowoff", channel)
 
     /**
      * Sends the command `/subscribers` to the given [channel].
      *
      * This will activate subscriber only mode if the initiating user owns the required privileges to do so.
      */
-    fun subscribers(channel: String = joinedChannels[0]) {
-        textMessage("/subscribers", channel)
-    }
+    fun subscribers(channel: String): TmiSession = textMessage("/subscribers", channel)
 
     /**
      * Sends the command `/subscribersoff` to the given [channel].
      *
      * This will deactivate subscriber only mode if the initiating user owns the required privileges to do so.
      */
-    fun subscribersOff(channel: String = joinedChannels[0]) {
-        textMessage("/subscribersoff", channel)
-    }
+    fun subscribersOff(channel: String): TmiSession = textMessage("/subscribersoff", channel)
 
     /**
      * Sends the command `/marker [description]` to the given [channel].
      *
      * Add a stream marker at the current timestamp with a specified description.
      */
-    fun marker(description: String, channel: String = joinedChannels[0]) {
-        textMessage("/marker $description", channel)
-    }
+    fun marker(description: String, channel: String): TmiSession = textMessage("/marker $description", channel)
 
     /**
      * Execute an [action], if the given [message] denotes a cheer matching the given [amountCondition].
@@ -178,7 +162,7 @@ sealed class TmiSession(
         amountCondition: (Int) -> Boolean,
         message: TmiMessage,
         action: TmiSession.(TmiMessage, Int) -> Unit
-    ): Unit = OnCheerAction(amountCondition, action)(this, message)
+    ): TmiSession = OnCheerAction(amountCondition, action)(this, message).let { this }
 
     /**
      * Execute an [action], if the incoming [message] consists of the specified [command].
@@ -192,10 +176,10 @@ sealed class TmiSession(
      */
     fun onCommand(
         command: String,
-        options: OnCommandAction.Options = OnCommandAction.Options(),
+        options: OnCommandAction.Options,
         message: TmiMessage,
         action: TmiSession.(CommandMessageContext) -> Unit
-    ): Unit = OnCommandAction(command, options, action)(this, message)
+    ): TmiSession = OnCommandAction(command, options, action)(this, message).let { this }
 
     /**
      * Execute an [action], if the incoming [message] consists of the specified [command].
@@ -210,16 +194,15 @@ sealed class TmiSession(
         command: String,
         message: TmiMessage,
         action: TmiSession.(CommandMessageContext) -> Unit
-    ): Unit = OnCommandAction(command, OnCommandAction.Options(), action)(this, message)
+    ): TmiSession = OnCommandAction(command, OnCommandAction.Options(), action)(this, message).let { this }
 
     /**
      * Map the current actions to a [Flux] and clear the list of cached actions.
      */
     internal fun consumeActions(): Flux<WebSocketMessage> {
-        // we need a copy of the actions list, otherwise it will be cleared, before the flux is processed
-        val asFlux = actions.toList().toFlux()
-        actions.clear()
-        return asFlux
+        // we need a copy of the actions list, otherwise it would be cleared, before the flux is processed
+        return actions.toList().toFlux()
+            .also { actions.clear() }
     }
 
     internal fun hasActions(): Boolean = actions.isNotEmpty()
