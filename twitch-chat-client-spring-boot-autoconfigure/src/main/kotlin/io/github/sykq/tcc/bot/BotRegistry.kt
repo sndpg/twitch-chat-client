@@ -52,7 +52,7 @@ class BotRegistry(
             is Bot -> tmiClient
                 .connect({ session -> botBase.onConnect(session) },
                     { message -> botBase.onMessage(this, message) })
-            is ReactiveBot -> botBase.receive(tmiClient)
+            is PublishingBot -> botBase.receive(tmiClient)
         }
 
     private fun resolveTmiClients(

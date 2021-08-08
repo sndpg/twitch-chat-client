@@ -6,7 +6,7 @@ import io.github.sykq.tcc.TmiSession
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface ReactiveBot : BotBase {
+interface PublishingBot : BotBase {
 
     /**
      * The actions to execute on the incoming flux of [messages] (as arriving within the [session]).

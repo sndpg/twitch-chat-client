@@ -147,7 +147,7 @@ See https://dev.twitch.tv/docs/irc/guide#connecting-to-twitch-irc[Connecting to 
 
 === With Spring Boot
 
-Adding the spring-boot-starter listed in <<Spring Boot>> to your Spring Boot project will pull in a AutoConfiguration which adds a `BotRegistry`-Bean to the ApplicationContext and provide the additional `BotBase`, `Bot` and `ReactiveBot` interfaces which serve as an additional layer above the TmiClient, allowing for implementations to hold bot-specific state.
+Adding the spring-boot-starter listed in <<Spring Boot>> to your Spring Boot project will pull in a AutoConfiguration which adds a `BotRegistry`-Bean to the ApplicationContext and provide the additional `BotBase`, `Bot` and `PublishingBot` interfaces which serve as an additional layer above the TmiClient, allowing for implementations to hold bot-specific state.
 
 == Features
 
