@@ -12,6 +12,8 @@ dependencies {
     api("io.projectreactor.addons:reactor-extra")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
+    api( "io.rsocket:rsocket-core:1.1.1")
+    api( "io.rsocket:rsocket-transport-netty:1.1.1")
 
     testImplementation("io.projectreactor:reactor-test")
 }
