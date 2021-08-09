@@ -4,6 +4,7 @@ import io.github.sykq.tcc.action.CommandMessageContext
 import io.github.sykq.tcc.action.OnCheerAction
 import io.github.sykq.tcc.action.OnCommandAction
 import io.github.sykq.tcc.internal.prependIfMissing
+import io.github.sykq.tcc.internal.tmiTextMessage
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux

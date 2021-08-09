@@ -1,9 +1,9 @@
 package io.github.sykq.tcc
 
-import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_PASSWORD_KEY
-import io.github.sykq.tcc.TmiClient.Companion.TMI_CLIENT_USERNAME_KEY
 import io.github.sykq.tcc.TmiClient.Configurer
 import io.github.sykq.tcc.internal.prependIfMissing
+import io.github.sykq.tcc.internal.resolveProperty
+import io.github.sykq.tcc.internal.tmiTextMessage
 import org.reactivestreams.Publisher
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -18,6 +18,20 @@ import reactor.kotlin.extra.retry.retryExponentialBackoff
 import java.net.URI
 import java.time.Duration
 import java.util.logging.Level
+
+/**
+ * The default property used to resolve a client's username.
+ *
+ * Will only be used if [Configurer.username] is not explicitly set.
+ */
+const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
+
+/**
+ * The default property used to resolve a client's password.
+ *
+ * Will only be used if [Configurer.password] is not explicitly set.
+ */
+const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
 
 /**
  * Allows to create a [TmiClient] by applying the configuration supplied through the [configure] method.
@@ -402,21 +416,4 @@ class TmiClient internal constructor(configurer: Configurer) {
 
     }
 
-    companion object {
-
-        const val TMI_CLIENT_USERNAME_KEY: String = "TMI_CLIENT_USERNAME"
-        const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
-
-        private fun resolveProperty(key: String, providedValue: String?) = when {
-            providedValue != null && providedValue.isNotBlank() -> providedValue
-            System.getenv().containsKey(key) -> System.getenv(key)
-            System.getProperties().containsKey(key) -> System.getProperty(key)
-            else -> throw Exception("could not obtain value for key [$key] from environment or jvm properties")
-        }
-
-    }
-
 }
-
-internal fun WebSocketSession.tmiTextMessage(message: String, channel: String) =
-    textMessage("PRIVMSG ${channel.prependIfMissing('#')} :$message")
