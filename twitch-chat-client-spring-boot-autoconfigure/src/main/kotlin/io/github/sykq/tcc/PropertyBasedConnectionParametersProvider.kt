@@ -1,5 +1,6 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.internal.resolvePropertyValue
 import org.springframework.core.env.Environment
 
 /**

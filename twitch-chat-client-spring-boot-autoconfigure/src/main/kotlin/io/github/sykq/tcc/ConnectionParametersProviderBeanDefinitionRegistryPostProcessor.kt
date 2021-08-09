@@ -1,5 +1,7 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.internal.bindTmiProperties
+import io.github.sykq.tcc.internal.resolvePropertyValue
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.BeanDefinitionBuilder
