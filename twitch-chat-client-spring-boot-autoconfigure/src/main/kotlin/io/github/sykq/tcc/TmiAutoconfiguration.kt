@@ -2,6 +2,7 @@ package io.github.sykq.tcc
 
 import io.github.sykq.tcc.bot.BotBase
 import io.github.sykq.tcc.bot.BotRegistry
+import io.github.sykq.tcc.internal.bindTmiProperties
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -25,12 +26,12 @@ class TmiAutoconfiguration {
         ConnectionParametersProviderBeanDefinitionRegistryPostProcessor(environment)
 
     @Bean
-    @ConditionalOnProperty(TmiClient.TMI_CLIENT_USERNAME_KEY, TmiClient.TMI_CLIENT_PASSWORD_KEY)
+    @ConditionalOnProperty(TMI_CLIENT_USERNAME_KEY, TMI_CLIENT_PASSWORD_KEY)
     fun defaultConnectionParametersProvider(environment: Environment): ConnectionParametersProvider {
         return object : ConnectionParametersProvider {
             override fun getConnectionParameters(): ConnectionParameters {
-                val username = environment.getProperty(TmiClient.TMI_CLIENT_USERNAME_KEY)!!
-                val password = environment.getProperty(TmiClient.TMI_CLIENT_PASSWORD_KEY)!!
+                val username = environment.getProperty(TMI_CLIENT_USERNAME_KEY)!!
+                val password = environment.getProperty(TMI_CLIENT_PASSWORD_KEY)!!
                 return ConnectionParameters(username, password)
             }
         }
