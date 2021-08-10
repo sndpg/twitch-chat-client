@@ -1,12 +1,13 @@
 package io.github.sykq.tcc
 
+import io.github.sykq.tcc.tag.Tags
 import java.time.ZonedDateTime
 
 /**
  * An incoming message from the TMI over the connected [TmiSession].
  *
- * Such messages can be processed through the [TmiClient.onMessage] function (and its variants, e.g.
- * [TmiClient.connectAndTransform]).
+ * Such messages can be processed through the [TmiClient.onMessageActions] by invoking [TmiClient.connect] (or its
+ * variants, e.g. [TmiClient.connectAndTransform], [TmiClient.block]).
  */
 data class TmiMessage(
     val timestamp: ZonedDateTime,
@@ -14,8 +15,14 @@ data class TmiMessage(
     val user: String,
     val text: String,
     val type: TmiMessageType = TmiMessageType.UNDEFINED,
-    val tags: Map<String, List<String>> = mapOf(),
+    val tags: Tags = Tags(mapOf()),
 ) {
+
+    /**
+     * Return `true` if the author of this message is a subscriber of the channel.
+     */
+    fun isUserSubscribed(): Boolean = tags["subscriber"]?.values?.contains("1") ?: false
+
     internal companion object {
 
         /**
@@ -51,7 +58,7 @@ data class TmiMessage(
 
             val text = payloadAsText.substring(channelNameEndIndex + 1).removePrefix(":").removeSuffix("\r\n")
 
-            return TmiMessage(ZonedDateTime.now(), channel, user, text, TmiMessageType.PRIVMSG, tags)
+            return TmiMessage(ZonedDateTime.now(), channel, user, text, TmiMessageType.PRIVMSG, Tags.from(tags))
         }
 
         private fun resolveTags(payloadAsText: String): Map<String, List<String>> {
