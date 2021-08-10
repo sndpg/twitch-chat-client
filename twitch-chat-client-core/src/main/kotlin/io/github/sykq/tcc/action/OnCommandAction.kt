@@ -3,6 +3,7 @@ package io.github.sykq.tcc.action
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
 import io.github.sykq.tcc.action.OnCommandAction.Options
+import java.util.function.Predicate
 
 /**
  * Action in response to an incoming message, which will only be executed if the message is equal to the
@@ -26,22 +27,45 @@ class OnCommandAction(
 ) : (TmiSession, TmiMessage) -> Unit {
 
     override fun invoke(session: TmiSession, message: TmiMessage) {
-        val messageStart = message.text.substringBefore(' ')
+        val commandPart= message.commandPart()
+        message.takeIf { asPredicate(commandPart).test(it) }
+            ?.run {
+                val parsedCommand = parseCommand(commandPart, this)
+                action(session, CommandMessageContext(this, parsedCommand))
+            }
+    }
 
-        if (!options.allowArguments && message.text.trimEnd() != messageStart) {
-            return
+    /**
+     * Return the condition which has to be met by a message for this [OnCommandAction] to be executed, as a
+     * [Predicate].
+     *
+     * @return the condition which has to be met by a message for this [OnCommandAction] to be executed, as a
+     * [Predicate]
+     */
+    private fun asPredicate(commandPart: String): Predicate<TmiMessage> = Predicate { message ->
+        if (!options.allowArguments && message.text.trimEnd() != commandPart) {
+            return@Predicate false
         }
 
-        if ((options.caseInsensitiveCommand && command.lowercase() == messageStart.lowercase()) || command == messageStart) {
-            val parsedCommand = parseCommand(messageStart, message)
-            action(session, CommandMessageContext(message, parsedCommand))
-        }
+        return@Predicate (options.caseInsensitiveCommand && command.lowercase() == commandPart.lowercase())
+                || command == commandPart
     }
 
     private fun parseCommand(command: String, message: TmiMessage): Command {
         val arguments = message.text.removePrefix(command).trim().split(' ')
         return Command(command, arguments)
     }
+
+    /**
+     * Returns the `"actual"` command portion of a message.
+     *
+     * E.g. if the message consists of a command and some arguments , then only the command itself will be returned, for
+     * example:
+     *
+     * - given the message `!info test all`, the only `!info` will be returned.
+     * - given the message consisting only of `!info` alone, then `!info` will be returned (message unchanged).
+     */
+    private fun TmiMessage.commandPart() = text.substringBefore(' ')
 
     /**
      * Additional (optionally providable) options to change the behaviour of an [OnCommandAction].
