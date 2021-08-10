@@ -43,7 +43,7 @@ internal class TmiAutoconfigurationTest {
                 val tmiProperties = it.getBean(TmiProperties::class.java)
                 assertThat(tmiProperties.bots[0])
                     .matches { bot ->
-                        bot.usernameProperty == TmiClient.TMI_CLIENT_USERNAME_KEY
+                        bot.usernameProperty == TMI_CLIENT_USERNAME_KEY
                     }
                 assertThat(tmiProperties.bots[1])
                     .matches { bot ->
