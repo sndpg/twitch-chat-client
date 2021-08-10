@@ -36,8 +36,8 @@ const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
 /**
  * Allows to create a [TmiClient] by applying the configuration supplied through the [configure] method.
  */
-fun tmiClient(configure: TmiClient.Configurer.() -> Unit): TmiClient {
-    val configurer = TmiClient.Configurer()
+fun tmiClient(configure: Configurer.() -> Unit): TmiClient {
+    val configurer = Configurer()
     configure(configurer)
     return TmiClient(configurer)
 }
@@ -63,7 +63,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     private val channels: MutableList<String> = configurer.channels
     private val client: WebSocketClient = configurer.webSocketClient
 
-    private val filterUserMessages = configurer.filterUserMessages
+    private val filterUserMessages: Boolean = configurer.filterUserMessages
 
     private val onConnect: ConfigurableTmiSession.() -> Unit = configurer.onConnect
     private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = configurer.onMessageActions
