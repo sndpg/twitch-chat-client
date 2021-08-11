@@ -150,6 +150,17 @@ sealed class TmiSession(
     fun marker(description: String, channel: String): TmiSession = textMessage("/marker $description", channel)
 
     /**
+     * Sends the given message "as is" without converting it into a [TmiMessage].
+     *
+     * This can be used to send arbitrary payloads to the TMI.
+     *
+     * @param message the message (payload) to send
+     */
+    fun plainMessage(message: String): TmiSession = also {
+        actions.add(webSocketSession.textMessage(message))
+    }
+
+    /**
      * Execute an [action], if the given [message] denotes a cheer matching the given [amountCondition].
      *
      * If the message is not a cheer, no action will be performed.
