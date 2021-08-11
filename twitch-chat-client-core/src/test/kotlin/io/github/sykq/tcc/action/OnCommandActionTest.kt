@@ -1,8 +1,7 @@
-package io.github.sykq.tcc.bot.action
+package io.github.sykq.tcc.action
 
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
-import io.github.sykq.tcc.action.OnCommandAction
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.mockito.kotlin.anyOrNull
