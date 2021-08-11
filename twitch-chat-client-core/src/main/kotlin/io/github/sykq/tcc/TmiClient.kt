@@ -36,8 +36,8 @@ const val TMI_CLIENT_PASSWORD_KEY: String = "TMI_CLIENT_PASSWORD"
 /**
  * Allows to create a [TmiClient] by applying the configuration supplied through the [configure] method.
  */
-fun tmiClient(configure: TmiClient.Configurer.() -> Unit): TmiClient {
-    val configurer = TmiClient.Configurer()
+fun tmiClient(configure: Configurer.() -> Unit): TmiClient {
+    val configurer = Configurer()
     configure(configurer)
     return TmiClient(configurer)
 }
@@ -61,9 +61,9 @@ class TmiClient internal constructor(configurer: Configurer) {
     private val url: String = configurer.url
 
     private val channels: MutableList<String> = configurer.channels
-    private val client: WebSocketClient = ReactorNettyWebSocketClient()
+    private val client: WebSocketClient = configurer.webSocketClient
 
-    private val filterUserMessages = configurer.filterUserMessages
+    private val filterUserMessages: Boolean = configurer.filterUserMessages
 
     private val onConnect: ConfigurableTmiSession.() -> Unit = configurer.onConnect
     private val onMessageActions: List<TmiSession.(TmiMessage) -> Unit> = configurer.onMessageActions
@@ -348,6 +348,13 @@ class TmiClient internal constructor(configurer: Configurer) {
          * messages (e.g. triggered by user input).
          */
         var messageSink: Sinks.Many<String> = Sinks.many().multicast().directBestEffort()
+
+        /**
+         * The underlying [WebSocketClient] to use for connecting to the TMI.
+         *
+         * If not explicitly set, this will default to a new instance of a [ReactorNettyWebSocketClient].
+         */
+        var webSocketClient: WebSocketClient = ReactorNettyWebSocketClient()
 
         /**
          * Provide a list of actions to run in response to an incoming message.
