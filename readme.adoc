@@ -164,7 +164,7 @@ The TmiClient's `messageSink` allows for writing of text messages to joined chan
 
 Therefore, it should be possible to implement an interactive chat client on top of a TmiClient.
 
-The following examples sends two messages to a channel through the sink and the simply prints these messages out to the console (they will be consumed as messages coming in from the channel which has been used by the sink to send the messages to):
+The following example sends two messages to a channel through the sink and the simply prints these messages out to the console (they will be consumed as messages coming in from the channel which has been used by the sink to send the messages to):
 
 [source,kotlin]
 .Example for a TmiClient with a message sink
