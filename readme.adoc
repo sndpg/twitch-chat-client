@@ -4,7 +4,7 @@
 
 [WARNING]
 ====
-Pre-release state. Certain parts of the API will probably change going forward.
+Pre-release state. Certain parts of the API will probably change or may be removed going forward.
 ====
 
 A Kotlin library, providing integration of https://dev.twitch.tv/docs/irc/guide#Twitch_IRC_Capabilities[Twitch IRC capabilities] within JVM based applications (mainly intended for use with Spring Boot) by leveraging https://docs.spring.io/spring-integration/reference/html/web-sockets.html[Spring's WebSocket Support].
