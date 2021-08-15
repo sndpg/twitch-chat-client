@@ -1,4 +1,4 @@
-name: Build
+name: Build Github Packages
 
 on:
   workflow_dispatch:
