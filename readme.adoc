@@ -248,7 +248,7 @@ The following invocation will send _Hello_ to all joined channels:
 tmiSession.textMessage("Hello")
 ----
 +
-The following will send a textMessage to all joined channels that start which name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
+The following will send a textMessage to all joined channels whose name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
 +
 [source,kotlin]
 ----
