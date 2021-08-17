@@ -353,7 +353,7 @@ TODO
 
 TODO
 
-=== BotBase/Bot/ReactiveBot (Spring Boot)
+=== BotBase/Bot/PublishingBot (Spring Boot)
 
 TODO
 
