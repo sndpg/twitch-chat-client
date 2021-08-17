@@ -298,7 +298,7 @@ tmiClient.block {
 ----
 <1> the callback is of type `TmiSession.(CommandMessageContext) -> Unit`.
 The example shows a destructured `CommandMessageContext`.
-<2> invoke the `onGreetCommand` as part of a tmiClient's onMessage actions. `_this_` corresponds to `TmiSession` the function receiver TmiSession, `_it_` is the incoming `TmiMessage` (lambda parameter).
+<2> invoke the `onGreetCommand` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
 
 [TIP]
 ====
@@ -327,7 +327,7 @@ tmiClient.block {
 
 ----
 <1> the callback is of type `TmiSession.(TmiMessage, Int) -> Unit`, where the Int parameter is the amount cheered.
-<2> invoke the `onBigCheer` as part of a tmiClient's onMessage actions. `_this_` corresponds to `TmiSession` the function receiver TmiSession, `_it_` is the incoming `TmiMessage` (lambda parameter).
+<2> invoke the `onBigCheer` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
 
 [TIP]
 ====
