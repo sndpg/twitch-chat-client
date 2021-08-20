@@ -16,7 +16,7 @@ val kotlinLoggingVersion = "2.0.10"
 val mockitoKotlinVersion = "3.2.0"
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.4"))
     implementation(kotlin("stdlib"))
 
     implementation("org.slf4j:slf4j-api")

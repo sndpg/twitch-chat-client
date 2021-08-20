@@ -4,7 +4,8 @@
 
 [WARNING]
 ====
-Pre-release state. Certain parts of the API will probably change or may be removed going forward.
+Pre-release state.
+Certain parts of the API will probably change or may be removed going forward.
 ====
 
 A Kotlin library, providing integration of https://dev.twitch.tv/docs/irc/guide#Twitch_IRC_Capabilities[Twitch IRC capabilities] within JVM based applications (mainly intended for use with Spring Boot) by leveraging https://docs.spring.io/spring-integration/reference/html/web-sockets.html[Spring's WebSocket Support].
@@ -116,17 +117,19 @@ fun main() {
         }
     }
 
-    tmiClient.block { message ->
+    tmiClient.block {
         // specify what should happen upon receiving a message
-        if (message.text == "!hello") {
-            textMessage("Hi ${message.user}")
+        if (it.text == "!hello") { <4>
+            textMessage("Hi ${it.user}")
         }
     }
 }
 ----
+
 <1> the passwordProperty can be set to the name of an environment variable of system property whose value will be used as the password for connecting to the TMI
 <2> optionally join another channel upon connecting
 <3> set an optional `onConnect` action, which will send the text "connected" to all joined channels
+<4> the incoming `TmiMessage` is the lambda parameter (`it`), the `TmiSession` is the function receiver (`this`)
 
 To connect to the Twitch Messaging Interface (TMI) through the `TmiClient` you need to provide your Twitch username (login name) in lowercase as the `username` and an associated OAuth token as the `password`.
 Such a token can be generated with the help of the https://twitchapps.com/tmi/[Twitch Chat Password Generator].
@@ -193,6 +196,7 @@ fun main() {
 
 }
 ----
+
 <1> `onBackpressureBuffer()` replays all emissions pushed to this sink while no subscriber is registered, to the first (and only, since `unicast()` is used) subscriber.
 This allows us in this demo to push to the sink before the TmiClient establishes a connection to the TMI.
 
@@ -226,6 +230,7 @@ import io.github.sykq.tcc.tmiClient
         // ...
     }
 ----
+
 <1> activate tag capabilities
 ====
 
@@ -243,7 +248,7 @@ The following invocation will send _Hello_ to all joined channels:
 tmiSession.textMessage("Hello")
 ----
 +
-The following will send a textMessage to all joined channels that start which name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
+The following will send a textMessage to all joined channels whose name starts with the letter _a_ (this is just an artificial example which should demonstrate the possibility to reference the `joinedChannels` list):
 +
 [source,kotlin]
 ----
@@ -265,15 +270,80 @@ It consists of:
 - `user` = the authoring user of a message.
 - `text` = the text of a message.
 - `type` = one of the supported ``TmiMessageType``s
-- `tags` = the list of tags associated with a message. *NOTE:* Will only be supplied if link:#twitch_irc_capabilities[tag capabilities] are activated.
+- `tags` = the list of tags associated with a message.
+*NOTE:* Will only be supplied if link:#twitch_irc_capabilities[tag capabilities] are activated.
 
 Instances are implicitly provided by a TmiClient each time `onMessage()` is invoked and one of the according methods to establish a connection, e.g. `connect()`, `connectAndTransform()` or `block()` is used.
 
 === OnCommandAction
 
+The `io.github.sykq.tcc.action.OnCommandAction` represents an action in response to an incoming message, which will only be executed if the message is equal to a specified command.
+
+The following examples will send the message `Hello, _user_!` in response to an incoming message with text _!greet_ (where _user_ is the author of the message):
+
+[source,kotlin]
+.Send a message in response to an incoming !greet command
+----
+
+val onGreetCommand = OnCommandAction("!greet") { (tmiMessage, command) -> <1>
+    textMessage("Hello, ${tmiMessage.user}!")
+}
+
+tmiClient.block {
+    onGreetCommand(this, it) <2>
+    // potentially other actions
+    // ...
+}
+
+----
+<1> the callback is of type `TmiSession.(CommandMessageContext) -> Unit`.
+The example shows a destructured `CommandMessageContext`.
+<2> invoke the `onGreetCommand` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
+
+[TIP]
+====
+The `OnCommandAction` type is a subtype of `(TmiSession, TmiMessage) -> Unit` and therefore has to be invoked with according objects as parameters within an onMessage block.
+====
+
 === OnCheerAction
 
+The `io.github.sykq.tcc.action.OnCheerAction` represents an action in response to an incoming message, which will only be executed if the message consists of a cheer (Bits donation) which fulfills a given condition linked to the amount of cheered Bits.
+
+The following examples will send the message `Thank you _user_ for _n_ bits!` in response to an incoming cheer, if the Bit amount was greater than 100 Bits (where _user_ is the author of the message and _n_ is the amount of Bits donated):
+
+[source,kotlin]
+.Send a message in response to an incoming cheer
+----
+
+val onBigCheer = OnCheerAction(CheerAmountCondition.greaterThan(100)) { tmiMessage, cheerAmount -> <1>
+    textMessage("Thank you ${tmiMessage.user} for $cheerAmount bits!")
+}
+
+tmiClient.block {
+    onBigCheer(this, it) <2>
+    // potentially other actions
+    // ...
+}
+
+----
+<1> the callback is of type `TmiSession.(TmiMessage, Int) -> Unit`, where the Int parameter is the amount cheered.
+<2> invoke the `onBigCheer` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
+
+[TIP]
+====
+The `OnCheerAction` type is a subtype of `(TmiSession, TmiMessage) -> Unit` and therefore has to be invoked with according objects as parameters within an onMessage block.
+====
+
 ==== CheerAmountCondition
+
+The singleton `io.github.sykq.tcc.action.CheerAmountCondition` contains several predefined conditions which can be used to test incoming cheer amounts, e.g.:
+
+[source,kotlin]
+----
+exactly(cheerAmount)
+----
+
+for checking that a cheer equals as a specific amount.
 
 === Connecting with multiple accounts (Spring Boot)
 
@@ -283,7 +353,7 @@ TODO
 
 TODO
 
-=== BotBase/Bot/ReactiveBot (Spring Boot)
+=== BotBase/Bot/PublishingBot (Spring Boot)
 
 TODO
 

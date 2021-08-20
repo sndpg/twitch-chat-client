@@ -25,6 +25,8 @@ class Tags(keyedTags: Map<String, Tag>) {
      */
     operator fun get(id: String): Tag? = keyed[id]
 
+    override fun toString(): String = keyed.toString()
+
     companion object {
 
         /**
