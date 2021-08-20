@@ -92,10 +92,10 @@ class TmiClient internal constructor(configurer: Configurer) {
             .thenMany(
                 Flux.merge(
                     it.handleIncomingMessages()
+                        .log("", Level.FINE)
                         .flatMap { tmiMessage ->
                             invokeOnMessageActions(tmiMessage, DefaultTmiSession(it, channels), onMessage)
-                        }
-                        .log("", Level.FINE),
+                        },
                     it.pushToSink()
                 )
             )
