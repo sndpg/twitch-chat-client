@@ -240,6 +240,7 @@ class TmiClient internal constructor(configurer: Configurer) {
     private fun WebSocketSession.handleIncomingMessages(): Flux<TmiMessage> = receive()
         .flatMap { message -> pong(this, message) }
         .map { message -> message.payloadAsText }
+        .log("", Level.FINER)
         .filter(TmiMessage::canBeCreatedFromPayloadAsText)
         .map { message -> TmiMessage.fromPayloadAsText(message) }
         .filter { message -> !filterUserMessages || message.user != username }

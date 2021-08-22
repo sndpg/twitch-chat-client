@@ -18,6 +18,7 @@ data class TmiMessage(
     val tags: Tags = Tags(mapOf()),
 ) {
 
+    // TODO: add appropriate processing of USERNOTICE messages with activated Tag capabilities.
     /**
      * Return `true` if the author of this message is a subscriber of the channel.
      */

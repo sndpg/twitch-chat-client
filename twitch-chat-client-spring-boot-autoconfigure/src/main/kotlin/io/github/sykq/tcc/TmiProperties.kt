@@ -14,9 +14,13 @@ data class TmiProperties(
     /**
      * Whether [TmiClient]-Beans should automatically connect to the TMI when the application is started.
      */
-    val connectTmiClientsEnabled: Boolean? = true
-) {
+    val connectTmiClientsEnabled: Boolean? = true,
 
+    /**
+     * The default IRC capabilities to be activated by each bot when connecting to TMI.
+     */
+    val defaultCapabilities: List<IrcCapability> = listOf(IrcCapability.TAGS, IrcCapability.COMMANDS),
+) {
 
     data class Bot(
 
@@ -56,7 +60,15 @@ data class TmiProperties(
          *
          * Use either this or the [password] to provide the appropriate password for the given username.
          */
-        val passwordProperty: String? = TMI_CLIENT_PASSWORD_KEY
+        val passwordProperty: String? = TMI_CLIENT_PASSWORD_KEY,
+
+        /**
+         * The default IRC capabilities to be activated by this bot when connecting to TMI.
+         *
+         * If these are set, the capabilities specified in [TmiProperties.defaultCapabilities] will be overridden for
+         * this specific bot.
+         */
+        val defaultCapabilities: List<IrcCapability>?,
     )
 
 }
