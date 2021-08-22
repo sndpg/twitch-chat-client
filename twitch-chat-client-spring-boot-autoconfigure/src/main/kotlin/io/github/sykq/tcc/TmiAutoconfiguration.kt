@@ -51,9 +51,10 @@ class TmiAutoconfiguration {
     @ConditionalOnBean(BotBase::class)
     fun botRegistry(
         bots: List<BotBase>,
-        connectionParametersProviders: List<ConnectionParametersProvider>
+        connectionParametersProviders: List<ConnectionParametersProvider>,
+        tmiProperties: TmiProperties
     ): BotRegistry =
-        BotRegistry(bots, connectionParametersProviders)
+        BotRegistry(bots, connectionParametersProviders, tmiProperties)
 
     class BotPropertiesProvidedCondition : SpringBootCondition() {
         override fun getMatchOutcome(context: ConditionContext?, metadata: AnnotatedTypeMetadata?): ConditionOutcome {

@@ -2,6 +2,7 @@ package io.github.sykq.tcc.bot
 
 import io.github.sykq.tcc.ConnectionParametersProvider
 import io.github.sykq.tcc.TmiClient
+import io.github.sykq.tcc.TmiProperties
 import io.github.sykq.tcc.tmiClient
 import mu.KotlinLogging
 import reactor.core.publisher.Flux
@@ -17,7 +18,8 @@ private val LOG = KotlinLogging.logger {}
  */
 class BotRegistry(
     bots: List<BotBase>,
-    connectionParametersProviders: List<ConnectionParametersProvider>
+    connectionParametersProviders: List<ConnectionParametersProvider>,
+    private val tmiProperties: TmiProperties,
 ) {
     private val tmiClients = resolveTmiClients(bots, connectionParametersProviders)
     val bots = bots.associateBy { it.name }
@@ -47,13 +49,23 @@ class BotRegistry(
     fun getBotsByType(type: Class<out BotBase>): List<BotBase> =
         bots.values.filter { it::class.java.isAssignableFrom(type) }
 
-    private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient): Mono<Void> =
-        when (botBase) {
-            is Bot -> tmiClient
-                .connect({ session -> botBase.onConnect(session) },
-                    { message -> botBase.onMessage(this, message) })
-            is PublishingBot -> botBase.receive(tmiClient)
+    private fun prepareTmiClientInvocation(botBase: BotBase, tmiClient: TmiClient): Mono<Void> {
+        val ircCapabilities = tmiProperties.bots.find { it.name == botBase.name }?.defaultCapabilities
+            ?: tmiProperties.defaultCapabilities
+        val capabilitiesToActivate = ircCapabilities.mapNotNull {
+            it.onConnectAction
         }
+
+        return when (botBase) {
+            is Bot -> tmiClient.connect(
+                { session ->
+                    capabilitiesToActivate.forEach { it(session) }
+                    botBase.onConnect(session)
+                },
+                { message -> botBase.onMessage(this, message) })
+            is PublishingBot -> botBase.receive(tmiClient, capabilitiesToActivate)
+        }
+    }
 
     private fun resolveTmiClients(
         bots: List<BotBase>,

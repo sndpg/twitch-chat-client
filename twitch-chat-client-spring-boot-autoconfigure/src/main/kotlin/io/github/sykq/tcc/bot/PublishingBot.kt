@@ -1,5 +1,6 @@
 package io.github.sykq.tcc.bot
 
+import io.github.sykq.tcc.ConfigurableTmiSession
 import io.github.sykq.tcc.TmiClient
 import io.github.sykq.tcc.TmiMessage
 import io.github.sykq.tcc.TmiSession
@@ -20,8 +21,12 @@ interface PublishingBot : BotBase {
      * Start the [org.springframework.web.reactive.socket.WebSocketSession] and process incoming messages with the
      * given [onMessage] method.
      */
-    fun receive(tmiClient: TmiClient): Mono<Void> =
-        tmiClient.connectAndTransform({ session -> onConnect(session) },
+    fun receive(tmiClient: TmiClient, onConnectActions: List<(ConfigurableTmiSession) -> Unit>): Mono<Void> =
+        tmiClient.connectAndTransform(
+            { session ->
+                onConnectActions.forEach { it(session) }
+                onConnect(session)
+            },
             { onMessage(this, it) })
 
     class Configurer<T : BotBase> : BotBase.Configurer<T>() {
