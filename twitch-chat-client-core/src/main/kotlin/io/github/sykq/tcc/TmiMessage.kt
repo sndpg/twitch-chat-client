@@ -41,6 +41,7 @@ data class TmiMessage(
         fun fromPayloadAsText(payloadAsText: String): TmiMessage {
             return when (resolveType(payloadAsText)) {
                 TmiMessageType.PRIVMSG -> parsePrivMsg(payloadAsText)
+                TmiMessageType.USERNOTICE -> parserUserNotice(payloadAsText)
                 else -> TmiMessage(ZonedDateTime.now(), "", "", payloadAsText, TmiMessageType.UNDEFINED)
             }
         }
@@ -60,6 +61,11 @@ data class TmiMessage(
             val text = payloadAsText.substring(channelNameEndIndex + 1).removePrefix(":").removeSuffix("\r\n")
 
             return TmiMessage(ZonedDateTime.now(), channel, user, text, TmiMessageType.PRIVMSG, Tags.from(tags))
+        }
+
+        private fun parserUserNotice(payloadAsText: String): TmiMessage {
+            // TODO: implement
+            return TmiMessage(ZonedDateTime.now(), "", "", "", TmiMessageType.USERNOTICE)
         }
 
         private fun resolveTags(payloadAsText: String): Map<String, List<String>> {
