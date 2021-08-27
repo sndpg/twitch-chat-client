@@ -66,4 +66,9 @@ internal class TmiMessageTest {
         assertFalse(tmiMessageWithoutSubscriber.isUserSubscribed())
     }
 
+    @Test
+    fun `should create from USERNOTICE`() {
+        val payloadAsText = "@badge-info=subscriber/0;badges=subscriber/0,premium/1;color=;display-name=boxedcakemx;emotes=;flags=;id=f55a37d8-1175-44ab-8ee2-7aa8dd4a8277;login=boxedcakemx;mod=0;msg-id=sub;msg-param-cumulative-months=1;msg-param-months=0;msg-param-multimonth-duration=1;msg-param-multimonth-tenure=0;msg-param-should-share-streak=0;msg-param-sub-plan-name=Channel\\sSubscription\\s(last_grey_wolf);msg-param-sub-plan=1000;msg-param-was-gifted=false;room-id=31736255;subscriber=1;system-msg=boxedcakemx\\ssubscribed\\sat\\sTier\\s1.;tmi-sent-ts=1629580783089;user-id=122099673;user-type= :tmi.twitch.tv USERNOTICE #dumbdog"
+    }
+
 }
