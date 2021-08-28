@@ -41,7 +41,7 @@ data class TmiMessage(
         fun fromPayloadAsText(payloadAsText: String): TmiMessage {
             return when (resolveType(payloadAsText)) {
                 TmiMessageType.PRIVMSG -> parsePrivMsg(payloadAsText)
-                TmiMessageType.USERNOTICE -> parserUserNotice(payloadAsText)
+                TmiMessageType.USERNOTICE -> parseUserNotice(payloadAsText)
                 else -> TmiMessage(ZonedDateTime.now(), "", "", payloadAsText, TmiMessageType.UNDEFINED)
             }
         }
@@ -63,9 +63,20 @@ data class TmiMessage(
             return TmiMessage(ZonedDateTime.now(), channel, user, text, TmiMessageType.PRIVMSG, Tags.from(tags))
         }
 
-        private fun parserUserNotice(payloadAsText: String): TmiMessage {
-            // TODO: implement
-            return TmiMessage(ZonedDateTime.now(), "", "", "", TmiMessageType.USERNOTICE)
+        private fun parseUserNotice(payloadAsText: String): TmiMessage {
+            val tags = resolveTags(payloadAsText)
+
+            val afterMessageTypeIdentifier = payloadAsText.substringAfter(TmiMessageType.USERNOTICE.name)
+            val channel = afterMessageTypeIdentifier.substringAfter("#").takeWhile { it != ' ' }
+
+            return TmiMessage(
+                ZonedDateTime.now(),
+                channel,
+                tags["display-name"]?.first() ?: "",
+                tags["system-msg"]?.first() ?: "",
+                TmiMessageType.USERNOTICE,
+                Tags.from(tags)
+            )
         }
 
         private fun resolveTags(payloadAsText: String): Map<String, List<String>> {
@@ -75,8 +86,8 @@ data class TmiMessage(
 
             // hopefully tag keys and values can't contain a whitespace char, otherwise we have to find a better
             // solution
-            val startOfUserName = payloadAsText.indexOf(' ')
-            return payloadAsText.substring(1, startOfUserName).trim()
+            val endOfTagsSection = payloadAsText.indexOf(' ')
+            return payloadAsText.substring(1, endOfTagsSection).trim()
                 .split(';')
                 .associate {
                     val (key, value) = it.split('=')
@@ -85,7 +96,8 @@ data class TmiMessage(
         }
 
         private fun resolveType(payloadAsText: String): TmiMessageType {
-            return TmiMessageType.values().find { payloadAsText.contains(it.name) } ?: TmiMessageType.UNDEFINED
+            // we need at least a whitespace before the message type's name, since NOTICE is an affix of USERNOTICE
+            return TmiMessageType.values().find { payloadAsText.contains(" ${it.name} ") } ?: TmiMessageType.UNDEFINED
         }
     }
 }
