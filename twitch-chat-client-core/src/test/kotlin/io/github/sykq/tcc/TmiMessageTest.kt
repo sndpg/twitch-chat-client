@@ -67,8 +67,15 @@ internal class TmiMessageTest {
     }
 
     @Test
-    fun `should create from USERNOTICE`() {
-        val payloadAsText = "@badge-info=subscriber/0;badges=subscriber/0,premium/1;color=;display-name=boxedcakemx;emotes=;flags=;id=f55a37d8-1175-44ab-8ee2-7aa8dd4a8277;login=boxedcakemx;mod=0;msg-id=sub;msg-param-cumulative-months=1;msg-param-months=0;msg-param-multimonth-duration=1;msg-param-multimonth-tenure=0;msg-param-should-share-streak=0;msg-param-sub-plan-name=Channel\\sSubscription\\s(last_grey_wolf);msg-param-sub-plan=1000;msg-param-was-gifted=false;room-id=31736255;subscriber=1;system-msg=boxedcakemx\\ssubscribed\\sat\\sTier\\s1.;tmi-sent-ts=1629580783089;user-id=122099673;user-type= :tmi.twitch.tv USERNOTICE #dumbdog"
+    fun `should create sub notice from USERNOTICE`() {
+        // \s is probably a whitespace character marker
+        val payloadAsText =
+            "@badge-info=subscriber/0;badges=subscriber/0,premium/1;color=;display-name=testuser;emotes=;flags=;id=f55a37d8-1175-bbbb-aaaa-7aa8dd4a8277;login=testuser;mod=0;msg-id=sub;msg-param-cumulative-months=1;msg-param-months=0;msg-param-multimonth-duration=1;msg-param-multimonth-tenure=0;msg-param-should-share-streak=0;msg-param-sub-plan-name=Channel\\sSubscription\\s(test_channel);msg-param-sub-plan=1000;msg-param-was-gifted=false;room-id=12345;subscriber=1;system-msg=testuser\\ssubscribed\\sat\\sTier\\s1.;tmi-sent-ts=1629580783089;user-id=9999;user-type= :tmi.twitch.tv USERNOTICE #testchannel"
+        val subUserNotice = TmiMessage.fromPayloadAsText(payloadAsText)
+        assertThat(subUserNotice.type).isEqualTo(TmiMessageType.USERNOTICE)
+        assertThat(subUserNotice.user).isEqualTo("testuser")
+        assertThat(subUserNotice.channel).isEqualTo("testchannel")
+        assertThat(subUserNotice.text).isEqualTo("testuser\\ssubscribed\\sat\\sTier\\s1.")
     }
 
 }
