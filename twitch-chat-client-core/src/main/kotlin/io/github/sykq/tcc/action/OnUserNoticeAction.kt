@@ -19,11 +19,14 @@ import io.github.sykq.tcc.UserNoticeType
  * [userNoticeTypes].
  */
 class OnUserNoticeAction(
-    private val userNoticeTypes: List<UserNoticeType> = UserNoticeType.values().toList(),
-    private val action: TmiSession.(CommandMessageContext) -> Unit
+    private vararg val userNoticeTypes: UserNoticeType = UserNoticeType.values(),
+    private val action: TmiSession.(UserNoticeMessageContext) -> Unit
 ) : (TmiSession, TmiMessage) -> Unit {
 
-    override fun invoke(p1: TmiSession, p2: TmiMessage) {
-        TODO("Not yet implemented")
+    override fun invoke(tmiSession: TmiSession, tmiMessage: TmiMessage) {
+        userNoticeTypes.firstOrNull { tmiMessage.tags.keyed["msg-id"]?.values?.contains(it.messageId) ?: false }
+            ?.apply {
+                action(tmiSession, UserNoticeMessageContext(tmiMessage, this))
+            }
     }
 }
