@@ -38,7 +38,7 @@ dependencies {
 }
 ----
 
-When using maven, add the following to the `dependencies` sections of your `pom.xml``:
+When using maven, add the following to the `dependencies` sections of your `pom.xml`:
 
 [,xml]
 .pom.xml
@@ -70,7 +70,7 @@ dependencies {
 }
 ----
 
-When using maven, add the following to the `dependencies` sections of your `pom.xml``:
+When using maven, add the following to the `dependencies` sections of your `pom.xml`:
 
 [,xml]
 .pom.xml
@@ -327,7 +327,7 @@ tmiClient.block {
 
 ----
 <1> the callback is of type `TmiSession.(TmiMessage, Int) -> Unit`, where the Int parameter is the amount cheered.
-<2> invoke the `onBigCheer` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
+<2> invoke `onBigCheer` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
 
 [TIP]
 ====
@@ -344,6 +344,38 @@ exactly(cheerAmount)
 ----
 
 for checking that a cheer equals as a specific amount.
+
+=== OnUserNoticeAction
+
+The `io.github.sykq.tcc.action.OnUserNoticeAction` represents an action response to an incoming message of type https://dev.twitch.tv/docs/irc/commands#userstate-twitch-commands[USERNOTICE], which will only be executed if the message is a `USERNOTICE`.
+
+Requires https://dev.twitch.tv/docs/irc/tags[Twitch IRC: Tags-Capabilities] as well as
+https://dev.twitch.tv/docs/irc/commands[Twitch IRC: Commands-Capabilities] to be active on a session (see
+link:twitch-chat-client-core/src/main/kotlin/io/github/sykq/tcc/ConfigurableTmiSession.kt[TmiSession.tagCapabilities()]  and
+link:twitch-chat-client-core/src/main/kotlin/io/github/sykq/tcc/ConfigurableTmiSession.kt[ConfigurableTmiSession.commandCapabilities()]).
+
+[source,kotlin]
+.Change internal state in response to a sub or resub USERNOTICE in a joined channel
+----
+
+val onSubOrResub = OnUserNoticeAction(UserNoticeType.SUB, UserNoticeType.RESUB) { <1>
+    changeSomeInternalState(it) <2>
+}
+
+tmiClient.block {
+    onSubOrResubAction(this, it) <3>
+    // potentially other actions
+    // ...
+}
+----
+<1> perform the specified action if the USERNOTICE is of sub-type _sub_ or _resub_. The sub-type is extracted from the tag with key `msg-id`.
+<2> `it` is the incoming message, `this` the active TmiSession
+<3> invoke `onSubOrResub` as part of a tmiClient's onMessage actions. `_this_` corresponds to the function receiver `TmiSession`, and `_it_` is the incoming `TmiMessage` (lambda parameter).
+
+[TIP]
+====
+The `OnUserNoticeAction` type is a subtype of `(TmiSession, TmiMessage) -> Unit` and therefore has to be invoked with according objects as parameters within an onMessage block.
+====
 
 === Connecting with multiple accounts (Spring Boot)
 
