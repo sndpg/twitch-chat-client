@@ -379,7 +379,7 @@ The `OnUserNoticeAction` type is a subtype of `(TmiSession, TmiMessage) -> Unit`
 
 === Connecting with multiple accounts (Spring Boot)
 
-TODO
+TODO, but see link:twitch-chat-client-spring-boot-autoconfigure/src/main/kotlin/io/github/sykq/tcc/TmiProperties.kt[TmiProperties] for now.
 
 === BotRegistry (Spring Boot)
 
