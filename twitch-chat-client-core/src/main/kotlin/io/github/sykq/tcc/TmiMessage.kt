@@ -18,9 +18,12 @@ data class TmiMessage(
     val tags: Tags = Tags(mapOf()),
 ) {
 
-    // TODO: add appropriate processing of USERNOTICE messages with activated Tag capabilities.
+
     /**
-     * Return `true` if the author of this message is a subscriber of the channel.
+     * Returns `true` if the author of this message is a subscriber of the channel.
+     *
+     * **NOTE:** Requires [Twitch IRC: Tags-Capabilities](https://dev.twitch.tv/docs/irc/tags) to be active on the
+     * associated session otherwise this method will always return `false`.
      */
     fun isUserSubscribed(): Boolean = tags["subscriber"]?.values?.contains("1") ?: false
 
