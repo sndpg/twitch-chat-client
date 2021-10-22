@@ -21,7 +21,7 @@ internal class OnUserNoticeActionTest {
         }
 
         val session = Mockito.mock(TmiSession::class.java)!!
-        onUserNoticeAction.invoke(session, subUserNotice)
+        onUserNoticeAction(session, subUserNotice)
 
         Mockito.verify(session, Mockito.times(1)).textMessage(eq("testuser has subscribed"), eq("testchannel"))
     }
@@ -37,7 +37,7 @@ internal class OnUserNoticeActionTest {
         }
 
         val session = Mockito.mock(TmiSession::class.java)!!
-        onUserNoticeAction.invoke(session, subUserNotice)
+        onUserNoticeAction(session, subUserNotice)
 
         Mockito.verify(session, Mockito.never()).textMessage(anyOrNull(), anyOrNull())
     }
