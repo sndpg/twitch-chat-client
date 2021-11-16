@@ -1,9 +1,6 @@
 package io.github.sykq.tcc.bot
 
-import io.github.sykq.tcc.ConfigurableTmiSession
-import io.github.sykq.tcc.TmiClient
-import io.github.sykq.tcc.TmiMessage
-import io.github.sykq.tcc.TmiSession
+import io.github.sykq.tcc.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -17,7 +14,7 @@ internal class BotRegistryTest {
         val testBot2 = TestBot("testBot2", tmiClient)
         val testTestBot = TestTestBot("testTestBot", tmiClient)
 
-        val botRegistry = BotRegistry(listOf(testBot1, testBot2, testTestBot), emptyList())
+        val botRegistry = BotRegistry(listOf(testBot1, testBot2, testTestBot), emptyList(), TmiProperties(bot = null))
 
         val testBots = botRegistry.getBotsByType(TestBot::class.java)
         assertThat(testBots).hasSize(2)
