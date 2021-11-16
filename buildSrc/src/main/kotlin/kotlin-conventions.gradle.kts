@@ -12,8 +12,8 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
-val kotlinLoggingVersion = "2.0.10"
-val mockitoKotlinVersion = "3.2.0"
+val kotlinLoggingVersion = "2.0.11"
+val mockitoKotlinVersion = "4.0.0"
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.6"))
@@ -32,7 +32,7 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 publishing {
@@ -68,6 +68,6 @@ tasks.jacocoTestReport {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
