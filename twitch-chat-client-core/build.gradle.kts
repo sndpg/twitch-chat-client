@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-val coroutinesVersion = "1.5.1"
+val coroutinesVersion = "1.6.0"
 
 dependencies {
     api("org.springframework:spring-webflux")
