@@ -12,7 +12,7 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
-val kotlinLoggingVersion = "2.0.11"
+val kotlinLoggingVersion = "2.1.13"
 val mockitoKotlinVersion = "4.0.0"
 
 dependencies {
