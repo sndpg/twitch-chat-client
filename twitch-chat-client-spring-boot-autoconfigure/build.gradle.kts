@@ -10,7 +10,7 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect")
     api("org.springframework.boot:spring-boot-configuration-processor")
     // version has to be somehow set explicitly (even though in other projects it works without), otherwise kapt will complain
-    kapt("org.springframework.boot:spring-boot-configuration-processor:2.6.6")
+    kapt("org.springframework.boot:spring-boot-configuration-processor:2.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-test")
 }

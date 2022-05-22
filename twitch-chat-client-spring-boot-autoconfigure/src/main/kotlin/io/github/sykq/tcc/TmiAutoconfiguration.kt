@@ -3,6 +3,7 @@ package io.github.sykq.tcc
 import io.github.sykq.tcc.bot.BotBase
 import io.github.sykq.tcc.bot.BotRegistry
 import io.github.sykq.tcc.internal.bindTmiProperties
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -17,6 +18,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata
 /**
  * AutoConfiguration for [BotBase] and [TmiClient] related functionality.
  */
+@AutoConfiguration
 @EnableConfigurationProperties(TmiProperties::class)
 class TmiAutoconfiguration {
 

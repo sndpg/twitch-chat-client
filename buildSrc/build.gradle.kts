@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.20"
 }
 
 dependencies {
